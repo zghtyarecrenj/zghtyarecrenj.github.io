@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="zghtyarecrenj">
+  <meta name="description" content="… 浅谈从 Lyndon Words 到 Three Squares Lemma By zghtyarecrenj 本文包括：Lyndon Words &amp; Significant Suffixes &amp; Lyndon Array &amp; Runs &amp; Lyndon Tree &amp; Three Squares Lemma。 禁止转载全文，转载部分需要注明出处。 前言 笔者又回来咯~ 其实，这篇文章还很不完善，有许多例题我还没有来得及仔细思考、实现代码并且撰写题解，还有一些东西没有来得及写。这些都在 To-do List 里面，日后我会慢慢填的。 如果你发现笔者有写错的地方，请联系笔者。（洛谷私信即可，不一定会及时回复） 写错的地方包括： typo 不规范的地方（比如有没">
+  
+  <meta property="og:title" content="Lyndon" />
+<meta property="og:description" content="… 浅谈从 Lyndon Words 到 Three Squares Lemma By zghtyarecrenj 本文包括：Lyndon Words &amp; Significant Suffixes &amp; Lyndon Array &amp; Runs &amp; Lyndon Tree &amp; Three Squares Lemma。 禁止转载全文，转载部分需要注明出处。 前言 笔者又回来咯~ 其实，这篇文章还很不完善，有许多例题我还没有来得及仔细思考、实现代码并且撰写题解，还有一些东西没有来得及写。这些都在 To-do List 里面，日后我会慢慢填的。 如果你发现笔者有写错的地方，请联系笔者。（洛谷私信即可，不一定会及时回复） 写错的地方包括： typo 不规范的地方（比如有没" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zghtyarecrenj.github.io/post/lyndon/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-06-04T22:00:28&#43;08:00" />
+<meta property="article:modified_time" content="2021-06-04T22:00:28&#43;08:00" />
+
+
+
+  <title>
+  
+       Lyndon | zghtyarecrenj&#39;s blog 
+  
+  </title>
+
+  <link rel="canonical" href="https://zghtyarecrenj.github.io/post/lyndon/">
+
+  
+  
+
+  
+  <link href="https://zghtyarecrenj.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://zghtyarecrenj.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://zghtyarecrenj.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://zghtyarecrenj.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://zghtyarecrenj.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://zghtyarecrenj.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://zghtyarecrenj.github.io/img/fav.jpg"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://zghtyarecrenj.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://zghtyarecrenj.github.io">
+          
+        <img class="avatar" src="https://zghtyarecrenj.github.io/img/fav.jpg" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> zghtyarecrenj</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://zghtyarecrenj.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/moment/" >Moment  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides/1346329fa6990e8c88838a1799587177.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides//4cfcb480528e250e0064847085e7052a.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides//68d00805177931258a1129efd6753df5.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://zghtyarecrenj.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://zghtyarecrenj.github.io/img/fav.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://zghtyarecrenj.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>zghtyarecrenj&#39;s blog</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/zghtyarecrenj" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:zghtyarecrenj@qq.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="container pr-5">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">Lyndon</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Jun 4, 2021</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>25 minutes read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            <html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" integrity="sha384-Um5gpz1odJg5Z4HAmzPtgZKdTBHZdw8S29IecapCSB31ligYPhHQZMIlWLYQGVoc" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js" integrity="sha384-YNHdsYkH6gMx9y3mRkmcJ2mFUjTd0qNQQvY9VYZgQd7DcN7env35GzlmFaZ23JGp" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+</head>
+…
+</html>
+<h1 id="浅谈从-lyndon-words-到-three-squares-lemma">浅谈从 Lyndon Words 到 Three Squares Lemma</h1>
+<p>By zghtyarecrenj</p>
+<p>本文包括：Lyndon Words &amp; Significant Suffixes &amp; Lyndon Array &amp; Runs &amp; Lyndon Tree &amp; Three Squares Lemma。</p>
+<p><strong>禁止转载全文</strong>，转载部分需要注明出处。</p>
+<h2 id="前言">前言</h2>
+<p>笔者又回来咯~</p>
+<p>其实，这篇文章还很不完善，有许多例题我还没有来得及仔细思考、实现代码并且撰写题解，还有一些东西没有来得及写。这些都在 To-do List 里面，日后我会慢慢填的。</p>
+<p><strong>如果你发现笔者有写错的地方，请联系笔者。（洛谷私信即可，不一定会及时回复）</strong></p>
+<p>写错的地方包括：</p>
+<ul>
+<li>typo</li>
+<li>不规范的地方（比如有没有把 Theorem 打成 Theory 的）</li>
+<li>内容上的错误</li>
+<li>写的不够明白/很敷衍的地方</li>
+</ul>
+<p>截至 2020-10-05 的 To-do List:</p>
+<ul>
+<li>[ ] ZJOI2020 字符串 (runs)</li>
+<li>[ ] CF594E (cfl)</li>
+<li>[ ] [JSOI2019]节日庆典 (significant suffixes)</li>
+<li>[ ] <a href="https://ac.nowcoder.com/acm/problem/201916">简单字符串</a> (Lyndon array)</li>
+<li>[ ] 2.4 Facts 都没有证</li>
+<li>[ ] Lyndon Tree 其实写的很草率</li>
+<li>[ ] Periodity lemma 还有很多很有趣的内容</li>
+</ul>
+<h2 id="marks-facts">0 Marks &amp; Facts</h2>
+<p>默认前置知识：</p>
+<ol type="1">
+<li>知道什么是字符串。</li>
+<li>会 SA 或者字符串哈希或者后缀树。</li>
+<li>其他可能用得上的基础算法，比如线段树。</li>
+</ol>
+<p>一些记号：</p>
+<ol type="1">
+<li>我们定义两个字符串 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(b\)</span>，如果 <span class="math inline">\(a\)</span> 的字典序 <span class="math inline">\(&lt;b\)</span>，则我们称 <span class="math inline">\(a &lt; b\)</span>。</li>
+<li>如果 <span class="math inline">\(a\)</span> 是 <span class="math inline">\(b\)</span> 的前缀且 <span class="math inline">\(a \ne b\)</span>，则我们称 <span class="math inline">\(a \sqsubset b\)</span>。</li>
+<li>如果 <span class="math inline">\(a\)</span> 是 <span class="math inline">\(b\)</span> 的前缀，则我们称 <span class="math inline">\(a \sqsubseteq b\)</span>。</li>
+<li>如果 <span class="math inline">\(a &lt; b\)</span> 且 <span class="math inline">\(a\)</span> 不是 <span class="math inline">\(b\)</span> 的前缀，则我们称 <span class="math inline">\(a \triangleleft b\)</span>。即 <span class="math inline">\(a \triangleleft b \Longleftrightarrow (a &lt; b) \wedge (a \not\sqsubseteq b)\)</span>。Fact：如果 <span class="math inline">\(a \triangleleft b\)</span>，则 <span class="math inline">\({au} &lt; {bv}\)</span>。</li>
+<li><span class="math inline">\({abc}\)</span> 表示拼接 <span class="math inline">\(a, b, c\)</span> 三个字符串。</li>
+<li><span class="math inline">\(a^n\)</span> 表示 <span class="math inline">\(n\)</span> 个 <span class="math inline">\(a\)</span> 拼接在一起。e.g. <span class="math inline">\({a^2b} = {aab}\)</span></li>
+<li><span class="math inline">\(\epsilon\)</span> 表示空串。</li>
+<li>我们定义字符集为 <span class="math inline">\(\Sigma\)</span>，组成的字符串为 <span class="math inline">\(\Sigma^*\)</span>，<span class="math inline">\(\Sigma^+ = \Sigma^* \setminus \{\epsilon\}\)</span></li>
+<li><span class="math inline">\(\operatorname{pref}(a)\)</span> 表示所有 <span class="math inline">\(a\)</span> 的前缀的集合，<span class="math inline">\(\operatorname{suf}(a)\)</span> 表示所有 <span class="math inline">\(a\)</span> 的后缀的集合（包含 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(\epsilon\)</span>）</li>
+<li><span class="math inline">\(\operatorname{pref}^+(a) = \operatorname{pref}(a) \setminus \{a,\epsilon\},\ \operatorname{suf}^+(a) = \operatorname{suf}(a) \setminus \{a, \epsilon\}\)</span></li>
+<li>若无特殊定义，字符串 <span class="math inline">\(s\)</span> 是从 <span class="math inline">\(0\)</span> 开始。</li>
+<li><span class="math inline">\(|s|\)</span> 表示 <span class="math inline">\(s\)</span> 的长度，<span class="math inline">\(s[i..j]\)</span> 表示 <span class="math inline">\(s\)</span> 的一个子串，第一个字符的标号为 <span class="math inline">\(i\)</span>，最后一个字符的标号为 <span class="math inline">\(j\)</span>。</li>
+<li>$=w$ $，其中 $$ $ 是一个比字符集里面任何数小的字符。</li>
+</ol>
+<h2 id="lyndon-words">1 Lyndon Words</h2>
+<p>这部分这位老哥写的可能比我的详细= = <a href="https://www.luogu.com.cn/blog/blog10086001/qian-tan-lyndon-word">link</a></p>
+<h3 id="definition">1.1 Definition</h3>
+<p><strong>Lyndon Word</strong>：一个串是一个 <strong>Lyndon Word</strong> 当且仅当 <span class="math inline">\(\forall a\)</span> 的后缀 <span class="math inline">\(b\)</span>，有 <span class="math inline">\(a &lt; b\)</span>。</p>
+<p>还有一个定义：对于一个 <span class="math inline">\(n\)</span> 的串有 <span class="math inline">\(n\)</span> 个循环同构，则其中严格最小的那个是一个 Lyndon Word。</p>
+<p>比如：<span class="math inline">\(\text{ab}\)</span> 是一个 Lyndon Word，但是 <span class="math inline">\(\text{ba}\)</span> 不是。</p>
+<p><span class="math inline">\(\mathcal L\)</span> 表示 Lyndon Word 的集合。</p>
+<h3 id="chan-fox-lyndon-factorization">1.2 Chan-Fox-Lyndon Factorization</h3>
+<p>又称 Lyndon Decomposition。</p>
+<p>我们定义 <span class="math inline">\(\operatorname{CFL}(s)\)</span> 是一个对于 <span class="math inline">\(s\)</span> 串的划分，即划分成了 <span class="math inline">\({w_1w_2\cdots w_k} = s\)</span>，使得所有 <span class="math inline">\(w_i\)</span> 是 Lyndon Word，并且 <span class="math inline">\(w_1 \ge w_2 \ge \cdots \ge w_n\)</span>。</p>
+<p>比如：串 <span class="math inline">\(\text{bbababaabaaabaaaab}\)</span> 的 Lyndon 分解是 <span class="math inline">\(\text{b|b|ab|ab|aab|aaab|aaaab}\)</span>。</p>
+<h4 id="theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</h4>
+<p>这是一个很显然的结论。</p>
+<blockquote>
+<p>如果 <span class="math inline">\(a, b \in \mathcal L\)</span>，且 <span class="math inline">\(a &lt; b\)</span>，则 $ {ab} L$。</p>
+</blockquote>
+<p>由于 <span class="math inline">\(a &lt; b\)</span>，我们有 <span class="math inline">\({ab} &lt; b\)</span>。接下来我们分两种情况讨论。</p>
+<ol type="1">
+<li><p>当 <span class="math inline">\(a \not \sqsubseteq b\)</span> 时：根据 <span class="math inline">\(a &lt; b\)</span>，我们有 <span class="math inline">\(a \triangleleft b\)</span>。所以 <span class="math inline">\({ab} \triangleleft b \implies {ab} &lt; b\)</span>。</p></li>
+<li><p>当 <span class="math inline">\(a \sqsubseteq b\)</span> 时：令 <span class="math inline">\(b={ac}\)</span>，则 <span class="math inline">\({ab} = {a^2c}\)</span>。因为 <span class="math inline">\(b \in \mathcal L\)</span>，所以 <span class="math inline">\({ab} &lt; b \implies {a^2c} &lt; {ac} \implies {ac} &lt; c\)</span>，所以 <span class="math inline">\(b &lt; c\)</span>。</p></li>
+</ol>
+<p>所以，<span class="math inline">\(\forall d \in \operatorname{suf}^+(b), \ {ab} &lt; b &lt; d \implies \forall c \in \operatorname{suf}^+(a),\ a \triangleleft e \implies {ab} \triangleleft {eb}\)</span>。<span class="math inline">\(\blacksquare\)</span></p>
+<h4 id="theorem-1.2.2-existence-of-cfl">Theorem 1.2.2 Existence of CFL</h4>
+<p>这个结论和 <strong>[Theorem 1.2.3] Uniqueness of CFL</strong> 是两个很有趣的结论。</p>
+<blockquote>
+<p>对于任意的串 <span class="math inline">\(s\)</span>，<span class="math inline">\(\operatorname{CFL}(s)\)</span> 一定存在。</p>
+</blockquote>
+<p>构造法。我们考虑，单个的字母一定是 Lyndon Word。</p>
+<p>根据 <strong><a href="#theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</a></strong>，我们可以把字典序小的两个 Lyndon Word 并起来，所以我们把所有的字典序单增的序列都并起来，剩下的就是一个合法的 CFL。<span class="math inline">\(\blacksquare\)</span></p>
+<h4 id="theorem-1.2.3-uniqueness-of-cfl">Theorem 1.2.3 Uniqueness of CFL</h4>
+<blockquote>
+<p>对于任意的串 <span class="math inline">\(s\)</span>，<span class="math inline">\(\operatorname{CFL}(s)\)</span> 一定唯一。</p>
+</blockquote>
+<p>反证法，假设有两种方案。我们考虑第一个不同的位置的情况，可以很容易地得到矛盾，和 CFL 的定义矛盾。<span class="math inline">\(\blacksquare\)</span></p>
+<p>然后我们就得到了 <strong>CFL 存在且唯一</strong>。由此有两个推论：</p>
+<h4 id="theorem-1.2.4-lyndon-suffixes-and-lyndon-prefixes">Theorem 1.2.4 Lyndon Suffixes and Lyndon Prefixes</h4>
+<blockquote>
+<p><span class="math inline">\(w_1\)</span> 是最长的 Lyndon 前缀且 <span class="math inline">\(w_k\)</span> 是最长的 Lyndon 后缀。</p>
+</blockquote>
+<p>反证法。因为如果 <span class="math inline">\(w_1\)</span> 不是最长，那么还能再拼，产生了两个合法的 CFL，和 <strong><a href="#theorem-1.2.3-uniqueness-of-cfl">Theorem 1.2.3 Uniqueness of CFL</a></strong> 矛盾。所以 <span class="math inline">\(w_1\)</span> 是最长的 Lyndon 前缀。</p>
+<p><span class="math inline">\(w_k\)</span> 同理。<span class="math inline">\(\blacksquare\)</span></p>
+<h4 id="theorem-1.2.5-theorem-of-minsuf">Theorem 1.2.5 Theorem of Minsuf</h4>
+<blockquote>
+<p>一个字符串 <span class="math inline">\(s\)</span> 的最小后缀是 <span class="math inline">\(w_k\)</span>。</p>
+</blockquote>
+<p>首先，我们有这样的一个 CFL：</p>
+<figure>
+<img src="https://zght.gitee.io/pic/pics/Pic1.jpg" alt="Pic1" /><figcaption>Pic1</figcaption>
+</figure>
+<p>首先，我们记 <span class="math inline">\(w_n\)</span> 的起始位置为 <span class="math inline">\(pos\)</span>，则显然</p>
+<figure>
+<img src="https://zght.gitee.io/pic/pics/Pic2.jpg" alt="这个位置是不可能的" /><figcaption>这个位置是不可能的</figcaption>
+</figure>
+<p>如图，最小后缀的其实位置不可能 <span class="math inline">\(&gt;pos\)</span>，因为根据 Lyndon Word 的定义，<span class="math inline">\(w_n\)</span> 的每个后缀都大于他自身。</p>
+<p>接下来我们考虑最小后缀在另一个位置的情况，即他在另一个 <span class="math inline">\(w_i\)</span> 之中</p>
+<figure>
+<img src="https://zght.gitee.io/pic/pics/Pic3.jpg" alt="这个位置也是不行的" /><figcaption>这个位置也是不行的</figcaption>
+</figure>
+<p>根据 <span class="math inline">\(w_i \ge w_{i+1}\ge \cdots \ge w_n\)</span>，而 <span class="math inline">\(w_i\)</span> 的一个后缀 <span class="math inline">\(&gt; w_i\)</span>，所以这个后缀大于 <span class="math inline">\(w_n\)</span>。</p>
+<p>所以唯一可能的最小后缀就是 <span class="math inline">\(w_n\)</span>。</p>
+<p>简单来说，假设最小后缀是 <span class="math inline">\({xw_{i+1}w_{i+2}\cdots w_{k}}\)</span> 而不是 <span class="math inline">\(w_k\)</span> 且 <span class="math inline">\(|x| &lt; |w_i|\)</span>。我们有 <span class="math inline">\({x w_{i + 1} \dots w_k} \geq x &gt; w_i \ge w_k\)</span>，矛盾。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="duvals-algorithm">1.3 Duval’s Algorithm</h3>
+<p>就是求出 CFL 的算法啦~</p>
+<p>我们有一个非常优美的算法</p>
+<p>简要思想：</p>
+<blockquote>
+<p>$ {uav} <span class="math inline">\(，\)</span>u,v,h ^*<span class="math inline">\(，\)</span>a&lt;b<span class="math inline">\(，\)</span>k1$</p>
+<ol type="1">
+<li><span class="math inline">\({(uav)^k ub} \in \mathcal{L}\)</span></li>
+<li><span class="math inline">\(\operatorname{CFL}({(ubv)^k uah}) = {(ubv)^k} \operatorname{CFL}({uah})\)</span></li>
+<li><span class="math inline">\(\operatorname{CFL}({(uv)^k u}) = {(uv)^k} \operatorname{CFL}(u)\)</span></li>
+</ol>
+</blockquote>
+<p>换成代码实现就是：</p>
+<p>我们需要维护两个部分：<span class="math inline">\(ubv\)</span> 和 <span class="math inline">\(u\)</span>。</p>
+<ul>
+<li>如果可以拼到当前的串的末尾就拼上去。</li>
+<li>否则就是一个新的 Lyndon Word。（如果碰到一个比当前的小的东西，则我们更新 <span class="math inline">\(ubv\)</span>，否则我们就更新 <span class="math inline">\(u\)</span>）。</li>
+<li>如果不满足 Lyndon Word 字段序递减的条件，则根据 <strong><a href="#theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</a></strong>，我们可以将两个 Lyndon Word 合并。</li>
+</ul>
+<p>如果还是不太懂可以移步 oi-wiki，那里写的比较详细。</p>
+<p>模拟即可，显然空间复杂度 <span class="math inline">\(\mathcal O(1)\)</span>。接下来证明一下时间复杂度。</p>
+<p>接下来证明一下复杂度为什么是对的。</p>
+<p>最优情况为一个分解走到底，<span class="math inline">\(\mathcal O(n)\)</span>。</p>
+<p>最坏情况为不停地在重新找，由于至多回退 <span class="math inline">\(n\)</span> 次，每次回退的距离不超过前进的距离，所以是 <span class="math inline">\(\mathcal O(n)\)</span>。</p>
+<h3 id="template">Template</h3>
+<blockquote>
+<p><a href="https://www.luogu.com.cn/problem/P6114">Luogu P6114</a> <a href="https://loj.ac/problem/129">LOJ129</a></p>
+</blockquote>
+<p>CFL 板子，欢迎来蒯。<code>char *s</code> 从 <span class="math inline">\(0\)</span> 开始编号，<code>int *ans</code> 返回 CFL 的右端点（注意从 <span class="math inline">\(0\)</span> 开始），函数返回的 <code>int</code> 是 Lyndon 串的个数。</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">inline</span> <span class="dt">int</span> CFL(<span class="dt">char</span> *s, <span class="dt">int</span> *ans) {</a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">int</span> res = <span class="dv">0</span>, n = strlen(s), i = <span class="dv">0</span>, j, k;</a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="cf">while</span> (i &lt; n) {</a>
+<a class="sourceLine" id="cb1-4" title="4">    j = i, k = i + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb1-5" title="5">    <span class="cf">while</span> (k &lt; n &amp;&amp; s[j] &lt;= s[k]) j = s[j] == s[k++] ? j + <span class="dv">1</span> : i;</a>
+<a class="sourceLine" id="cb1-6" title="6">    <span class="cf">while</span> (i &lt;= j) ans[res++] = i + k - j - <span class="dv">1</span>, i += k - j;</a>
+<a class="sourceLine" id="cb1-7" title="7">  }</a>
+<a class="sourceLine" id="cb1-8" title="8">  <span class="cf">return</span> res;</a>
+<a class="sourceLine" id="cb1-9" title="9">}</a></code></pre></div>
+<h2 id="exercises">Exercises</h2>
+<h3 id="ex-a-minsuf-of-prefixes">Ex A Minsuf of Prefixes</h3>
+<blockquote>
+<p>给定串 <span class="math inline">\(S\)</span>，求前缀的最小后缀。要求 <span class="math inline">\(\mathcal O(n)\)</span>。</p>
+</blockquote>
+<p>这是很裸的 Lyndon 的题吧……</p>
+<p>不用 Lyndon 的话传统做法是后缀树，维护一下最右边的路径即可。然而是带 <span class="math inline">\(\log\)</span> 的。</p>
+<p>根据 <strong><a href="#theorem-1.2.5-theorem-of-minsuf">Theorem 1.2.5 Theorem of Minsuf</a></strong>，<span class="math inline">\(w_n\)</span> 就是最小后缀，所以我们可以记忆化一下 CFL 分解：</p>
+<p>我们知道，Lyndon 分解的时候是一个 Lyndon 串不停地在重复，如果碰到冲突会重新跳，我们考虑把这个东西记忆化，记为 <span class="math inline">\(\operatorname{minsuf}(i)\)</span>。</p>
+<p>然后这个问题就迎刃而解了。</p>
+<h3 id="ex-b-maxsuf-of-prefixes">Ex B Maxsuf of Prefixes</h3>
+<blockquote>
+<p>求前缀的最大后缀。</p>
+</blockquote>
+<p>你可能看到这个问题会觉得把字典序反一下就好了，那也太 naive 了，试试自己举一个反例。</p>
+<p>揭晓答案：<span class="math inline">\(\color{white}\text{我们在最小后缀之中需要的是字典序最短的，但是最大后缀要字典序最长的}\)</span>。（试试复制一下，你就能看了）</p>
+<p>但是好消息是这个问题可以用另一种非常 naive 的方法解决，把 Lyndon 串在分解的时候直接记一下，输出当前的串就好了。（感性理解一下</p>
+<h3 id="ex-c-minimal-rotation">Ex C Minimal Rotation</h3>
+<blockquote>
+<p>最小循环表示</p>
+<p><a href="https://www.luogu.com.cn/problem/P1368">Luogu P1368</a></p>
+</blockquote>
+<p>对着 <span class="math inline">\({x}\)</span> 求一遍 CFL，找到前半串开始的最长 Lyndon Word 就是了。时间复杂度 <span class="math inline">\(\mathcal O(n)\)</span>。</p>
+<p>FAQ：诶，这用最小表示不是更好做吗？A：但是你用 Lyndon 不就能少学一个算法吗= =</p>
+<p>代码可以看 xht 的。</p>
+<h3 id="ex-d-moscow-2012-darkwing-duck">Ex D [Moscow 2012] Darkwing Duck</h3>
+<blockquote>
+<p>给你一个串 <span class="math inline">\(S\ (|S|\le 5\times 10^5)\)</span>。给你 <span class="math inline">\(q\)</span> 个询问，每次询问 <span class="math inline">\(\operatorname{maxsuf}(s[l..r])\)</span> 的下标。</p>
+<p><a href="https://codeforces.ml/gym/100685/problem/D">CF GYM 100685D</a></p>
+</blockquote>
+<p>这个显然可以SA，但是这个问题其实是可以使用 Lyndon 的知识解决的。</p>
+<p>首先我们以 <span class="math inline">\(r\)</span> 为关键词离线所有的询问，所以现在这个东西变成这样了：</p>
+<p><img src="https://zght.gitee.io/pic/pics/Pic4.jpg" /></p>
+<p>我们定义一个位置 <span class="math inline">\(i\)</span> 是有用的当且仅当 <span class="math inline">\(f(i\cdots r)\)</span> 是 Lyndon 的。</p>
+<p>我们有一堆 <span class="math inline">\(i\)</span>，他们有这些特点：他们满足一种后缀关系（废话</p>
+<p>我们可以维护一个类似栈的东西，把相邻的两个点 LCP 算出来，比如：</p>
+<p>C 和 B 在某个位置不同，B 和 A 在某个位置不同。我们把小的删掉，一直删光。</p>
+<p>如果我们要回答询问，我们可以 <code>std::lower_bound</code> 求出 <span class="math inline">\(l\)</span> 右边的第一个。</p>
+<p>如果你不想离线，我们把一个 <span class="math inline">\(r\)</span> 对应的集合用主席树记下来，也可以做的。</p>
+<p>时间复杂度 <span class="math inline">\(\mathcal O(n \log n)\)</span>。</p>
+<h3 id="ex-e-yandex.algorithm-2015-round-2.2-lexicographically-smallest-string">Ex E [Yandex.Algorithm 2015 Round 2.2] Lexicographically Smallest String</h3>
+<blockquote>
+<p><a href="https://contest.yandex.com/contest/1299/problems/F/">Yandex</a></p>
+<p>题意：给你一个字符串 <span class="math inline">\(S\)</span>，你可以选择任意一个区间进行翻转，使操作后的字符串字典序最小。<span class="math inline">\(|S| \le 10^7\)</span></p>
+</blockquote>
+<p><a href="https://codeforces.ml/blog/entry/18538?locale=en">Analysis</a></p>
+<p>来观察性质。</p>
+<p><strong>Lemma</strong>：如果我们在开头有一个不大于其他所有的字符的字符，则我们一定不动这个字符，否则一定会反转某一个前缀。</p>
+<p>假设翻转一个前缀 <span class="math inline">\(s[1..t]\)</span> 后的第一个字符比当前的小，则显然 <span class="math inline">\(s[t] &lt; s[1]\)</span>，矛盾。</p>
+<p>如果第一个字符不是最小，那么我们应该找到最小的字符 <span class="math inline">\(s[t]\)</span> 并且翻转前缀 <span class="math inline">\(s[1..t]\)</span>，使得第一个字符成为最小。<span class="math inline">\(\blacksquare\)</span></p>
+<p>既然我们要考虑一个翻转的区间，则我们不妨把原创翻转的结果记为 <span class="math inline">\(S^R\)</span>。</p>
+<p>我们考虑翻转过后的一个前缀是 <span class="math inline">\(S^R\)</span> 中的一个后缀，而我们要求翻转之后的字典序最小，所以我们需要挑选 <span class="math inline">\(S^R\)</span> 中的最小后缀（这里的最小后缀和一般说的有所不同，只要比其他不存在前缀关系都要小即可，所以可能不止一个）。</p>
+<p>可以发现，所以符合条件的后缀都是最长的一个的前缀。</p>
+<p>我们注意到，一个串 <span class="math inline">\(S&#39;\)</span> 是可以表示成若干的 <span class="math inline">\(w\)</span> 的幂和一个 <span class="math inline">\(w\)</span> 的前缀。</p>
+<p>接下来我们考虑什么时候需要翻转。</p>
+<p>如果 <span class="math inline">\(|A|=|B|\)</span>，则 <span class="math inline">\(A + A + C &lt; A + C + B &lt; C + B + B\)</span> 或 <span class="math inline">\(A+A+C&gt;A+C+B&gt;C+B+B\)</span> 或 <span class="math inline">\(A+A+C=A+C+B=C+B+B\)</span>。</p>
+<p>我们考虑 <span class="math inline">\(A=w, B=w^R,C=w&#39;\)</span> 的情况，发现满足条件的后缀之中只有最长的和最短的后缀可能对答案产生贡献。</p>
+<p>接下来我们应该使用 Duval 算法来找到 <span class="math inline">\(\operatorname{CFL}(S^R)\)</span> 来找到这些后缀。</p>
+<p>时间复杂度 <span class="math inline">\(\mathcal O(n)\)</span>。</p>
+<h3 id="ex-f-cutting-the-line">Ex F Cutting the Line</h3>
+<blockquote>
+<p><a href="http://codeforces.ml/problemset/problem/594/E">CF</a></p>
+<p>题意：给你一个字符串 <span class="math inline">\(S\)</span>，你可以把他分成 <span class="math inline">\(k\)</span> 段，并且翻转其中的若干段，使操作后的字符串字典序最小。<span class="math inline">\(1\le k\le |S| \le 5\times 10^6\)</span></p>
+</blockquote>
+<p>留作习题。</p>
+<h2 id="significant-suffixes">2 Significant Suffixes</h2>
+<h3 id="definition-1">2.1 Definition</h3>
+<p>我们令 <span class="math inline">\(\operatorname{minsuf}(u)\)</span> 为 <span class="math inline">\(u\)</span> 的最小后缀，且 <span class="math inline">\(\operatorname{minsuf}(u, v) = \min _{w \in \operatorname{suf}(u)} wv\)</span>。</p>
+<p><strong>Significant Suffixes</strong>：<span class="math inline">\(\Lambda(u) = \arg\min_{w\in \operatorname{suf}(u)} wv\)</span>。</p>
+<p><span class="math inline">\(\operatorname{minsuf}(s)\)</span> 表示 S 字典序最小的后缀，且</p>
+<p>由 <span class="math inline">\(\operatorname{minsuf}\)</span> 的性质可知，<span class="math inline">\(\operatorname{minsuf}(u, \epsilon) = \operatorname{minsuf}(u)\)</span>。<span class="math inline">\(\implies \operatorname{minsuf}(u) \in \Lambda(u)\)</span>。</p>
+<p>所以，显然 <span class="math inline">\(\forall u \in \Lambda(u),\ \operatorname{minsuf}(u) \sqsubseteq u\)</span>。</p>
+<p>我们注意到一个 CFL 分解中的 Lyndon Words 是存在一定的循环的。因此，我们可以记一个 CFL 为次方的形式。 <span class="math display">\[
+\operatorname{CFL}(u) = {{w_1}^{k_1}{w_2}^{k_2}\cdots {w_n}^{k_n}}
+\]</span> 我们记 <span class="math inline">\(s_i\)</span> 为一个后缀，即 <span class="math inline">\(s_i = {{w_i}^{k_i}{w_{i+1}}^{k_{i+1}}\cdots{w_n}^{k_n}}\)</span>。边界：<span class="math inline">\(s_{n+1} = \epsilon\)</span>。</p>
+<h3 id="significant-theorem">2.2 Significant Theorem</h3>
+<p>首先，我们需要一个引理。</p>
+<h4 id="theorem-2.2.1-infinite-theorem">Theorem 2.2.1 Infinite Theorem</h4>
+<p>一个十分显然的结论，和显然今天下大雨一样显然。</p>
+<p>在 <strong><a href="#theorem-2.2.2-significant-suffixes-theorem">Theorem 2.2.2 Significant Suffixes Theorem</a></strong> 里面会用到，建议先食用下一个 Theorem。</p>
+<blockquote>
+<p>如果 <span class="math inline">\(u^\infty &lt; v\)</span>，则 <span class="math inline">\(v &gt; {uv} &gt; {u^2v} &gt; \cdots\)</span>。</p>
+</blockquote>
+<p><span class="math inline">\(u^\infty &lt; v \implies u^\infty &lt; {uv}\)</span>。</p>
+<p>令 <span class="math inline">\(u = {xay}\)</span>，<span class="math inline">\(v = {(xay)^k xbh}\)</span>，其中 <span class="math inline">\(x,y,h\in\Sigma^*\)</span>，<span class="math inline">\(a,b\in\Sigma\)</span>，<span class="math inline">\(a&lt;b\)</span>。</p>
+<p>我们有 <span class="math inline">\(v \succ uv \Longleftrightarrow (xay)^{k - 1} xbh \succ (xay)^k xbh \Longleftrightarrow xbh \succ (xay) xbh\)</span>。</p>
+<p><span class="math inline">\(v&gt;{uv} \implies {u^iv} &gt; u^{i+1} \implies \blacksquare\)</span></p>
+<p>同理如果 <span class="math inline">\(u^\infty &gt; v\)</span>，则 <span class="math inline">\(v &lt; {uv} &lt; {u^2v} &lt; \cdots\)</span>。</p>
+<h4 id="theorem-2.2.2-significant-suffixes-theorem">Theorem 2.2.2 Significant Suffixes Theorem</h4>
+<blockquote>
+<p><span class="math display">\[ \Lambda(u)\subseteq \{s_i | i \in [1,n]\} \]</span></p>
+</blockquote>
+<p>反证法：如果这个命题不成立，则我们分类讨论</p>
+<p><strong>i)</strong> 假设有一个串 <span class="math inline">\(v = {b{w_i}^ks_{i+1}} \in \Lambda(u)\)</span>，<span class="math inline">\(|b| &lt; |w_i|,\ 0 \le k &lt; k_i\)</span>。</p>
+<p><span class="math inline">\(w_i \in \mathcal L \implies w_i \triangleleft b \implies s_i = {w_is_{i+1}} &lt; {bs_{i+1}}\)</span>，矛盾。</p>
+<p><strong>ii)</strong> 假设有一个串 <span class="math inline">\(v = {{w_i}^ks_{i+1}} \in \Lambda(u)\)</span>，<span class="math inline">\(1 &lt; k &lt; k_i\)</span>。</p>
+<p>根据 <strong><a href="#theorem-2.2.1-infinite-theorem">Theorem 2.2.1 Infinite Theorem</a></strong>，如果 <span class="math inline">\({w_i}^\infty &lt; s_{i+1}\)</span>，则 <span class="math inline">\({{w_i}^{k_i}s_{i+1}} &lt; {{w_i}^{k_i - 1}s_{i+1}}&lt;\cdots&lt;s_{i+1}\)</span>，否则 <span class="math inline">\({{w_i}^{k_i}s_{i+1}} &gt; {{w_i}^{k_i-1}s_{i+1}} &gt; \cdots &gt; s_{i+1}\)</span>。</p>
+<p>我们令 <span class="math inline">\(\lambda = \min \{i : s_{i+1} \sqsubset s_i\}\)</span>。<span class="math inline">\(\forall i \ge \lambda, \ w_i = {s_{i+1}y_i},\ x_i = {y_is_{i+1}}\)</span>。<span class="math inline">\(\implies s_i = {{w_i}^{k_i}s_{i+1}}= {(s_{i+1}y_i)^{k_i}s_{i+1}} = {s_{i+1}{x_i}^{k_i}}\)</span>。</p>
+<p>根据 CFL 的性质，<span class="math inline">\(s_{\lambda} \triangleleft w_{\lambda - 1}\)</span>。所以 <span class="math inline">\(\Lambda(u)\subseteq \{s_i | i \in [1,n]\}\)</span>。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="other-theories">2.3 Other Theories</h3>
+<h4 id="theorem-2.3.1-lambda-subset-theorem">Theorem 2.3.1 Lambda Subset Theorem</h4>
+<blockquote>
+<p>如果有 <span class="math inline">\(2\)</span> 个串 <span class="math inline">\(u\)</span> 和 <span class="math inline">\(v\)</span>，满足 <span class="math inline">\(|u| \le |v|\)</span>，则我们有 <span class="math display">\[ \begin{aligned}\Lambda(uv) &amp;\subseteq \Lambda(v) \cup \{\operatorname{maxsuf}^R(u, v)\} \\&amp;= \Lambda(u) \cup{\max _{s \in \Lambda(u)}}^R \{sv\}\end{aligned} \]</span></p>
+</blockquote>
+<p>理由很简单，因为 <span class="math inline">\(\{\operatorname{maxsuf}^R(u, v)\}\)</span> 也是一个 Significant Suffix，随意我们就可以把它展成第二行的式子的形式。<span class="math inline">\(\blacksquare\)</span></p>
+<h4 id="theorem-2.3.2-significant-suffixes-log-theorem">Theorem 2.3.2 Significant Suffixes Log Theorem</h4>
+<blockquote>
+<p>一个字符串 <span class="math inline">\(S\)</span> 的 Significant Suffixes 至多有 <span class="math inline">\(\log n\)</span> 个。</p>
+</blockquote>
+<p>原命题可以很容易地转化为：</p>
+<blockquote>
+<p>如果两个 Significant Suffixes <span class="math inline">\(u\)</span>，<span class="math inline">\(v\)</span> 满足 <span class="math inline">\(|u| &lt; |v|\)</span>，那么 <span class="math inline">\(2|u| &lt; |v|\)</span>。</p>
+</blockquote>
+<p>反证法。设存在 <span class="math inline">\(|u| &lt; |v| &lt; 2|u|\)</span>。因为 <span class="math inline">\(u, v \in \operatorname{suf}^+(u)\)</span>，所以 <span class="math inline">\(u \in \operatorname{suf}^+(v)\)</span>。</p>
+<p>所以我们可以非常容易地知道，<span class="math inline">\(u \triangleleft v\)</span>。<span class="math inline">\(\implies v\)</span> 有一个长度为 <span class="math inline">\(|v| - |u| &lt; \frac {|v|} 2\)</span> 的周期，记为 <span class="math inline">\(T\)</span>。</p>
+<p>所以，<span class="math inline">\(u = {Tw}, v = {T^2w}\)</span>。</p>
+<p>由于 <span class="math inline">\(u\)</span> 是一个 Significant Suffix，因此存在串 <span class="math inline">\(t\)</span>，满足 <span class="math inline">\(vt&gt;ut\)</span>，即 <span class="math inline">\({T^2wt} &gt; {Twt} \implies {Twt} &gt; {wt}\)</span>。</p>
+<p>而 <span class="math inline">\(w \in \operatorname{suf}^+(s)\)</span>，所以与 <span class="math inline">\(u\)</span> 是 Significant Suffix 矛盾。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="facts">2.4 Facts</h3>
+<p>我们知道 <span class="math inline">\(\Lambda(S)\)</span> 中有很多串，其中最短的是 <span class="math inline">\(\operatorname{minsuf}(S)\)</span>，而最长的是 <span class="math inline">\(\operatorname{maxsuf}^R(S)\)</span>。这里的 <span class="math inline">\(^R\)</span> 代表 reverse。</p>
+<ul>
+<li><span class="math inline">\(\Lambda(u) = \{s_{\lambda}, \cdots, s_{n+1}\}\)</span></li>
+<li><span class="math inline">\(\operatorname{minsuf}(u) = s_n\)</span></li>
+<li><span class="math inline">\(\operatorname{maxsuf}^R(u) = s_\lambda\)</span></li>
+<li><span class="math inline">\({x_\lambda}^\infty &gt; \cdots &gt; {x_m}^\infty\)</span></li>
+<li>我们有一个串 <span class="math inline">\(v\)</span>，<span class="math inline">\({x_i}^\infty &gt; v &gt; {x_{i+1}}^\infty\)</span>。则 <span class="math inline">\({s_\lambda v} &gt; \cdots &gt; {s_{i+1}v} &lt; \cdots &lt; {s_kv}\)</span>。</li>
+<li>对于两个串 <span class="math inline">\(u\)</span> 和 <span class="math inline">\(v\)</span>，有 <span class="math inline">\(|u|&lt;|v|\)</span>，<span class="math inline">\(\Lambda({uv}) \subseteq \{\operatorname{maxsuf}^R(u, v)\} \cup \Lambda(v) = \{\min_{w \in \Lambda(u)}{wv}\} \cup \Lambda(v)\)</span>。</li>
+</ul>
+<p>这里的 Proof 先咕着吧。贴个 Reference：</p>
+<p>Tomohiro, I., Nakashima, Y., Inenaga, S., Bannai, H., &amp; Takeda, M. (2016). Faster Lyndon factorization algorithms for SLP and LZ78 compressed text. Theor. Comput. Sci., 656, 215-224.</p>
+<p>Kociumaka, T. (2016). Minimal Suffix and Rotation of a Substring in Optimal Time. ArXiv, abs/1601.08051</p>
+<h2 id="exercises-1">Exercises</h2>
+<h3 id="ex-g-jsoi2019-节日庆典">Ex G [JSOI2019] 节日庆典</h3>
+<blockquote>
+<p><a href="https://loj.ac/problem/3103">LOJ</a> <a href="https://www.luogu.com.cn/problem/P5334">Luogu</a></p>
+</blockquote>
+<p>留作习题。</p>
+<h3 id="ex-h-zjoi2017-字符串">Ex H [ZJOI2017] 字符串</h3>
+<blockquote>
+<p><a href="https://loj.ac/problem/2572">LOJ</a> <a href="https://www.luogu.com.cn/problem/P5211">Luogu</a></p>
+<p>简要题意：维护动态字符串，值域 <span class="math inline">\(10^9\)</span>，区间加，求区间 <span class="math inline">\(\operatorname{minsuf}\)</span> 的位置。<span class="math inline">\(|S| \le 2 \times 10 ^ 5,m \le 3 \times 10 ^ 4\)</span></p>
+</blockquote>
+<p>前置芝士：Lyndon 分解，Significant Suffixes，线段树，字符串哈希，分块。</p>
+<p>我们先考虑不带修的情况。</p>
+<p>由 <strong><a href="#theorem-2.3.1-lambda-subset-theorem">Theorem 2.3.1 Lambda Subset Theorem</a></strong>，我们可以很容易地想到考虑建一棵线段树来维护 Significant Suffixes。</p>
+<p>细节：如果线段树的 <code>mid = l + r &gt;&gt; 1</code>，则左边的区间比右边长一些。但是上面的这个结论对于 <span class="math inline">\(|u| \le |v|\)</span> 有效，所以我们需要调整一下，使得左儿子比右儿子要长一些（即：<code>mid = l + r + 1 &gt;&gt; 1</code>，使得左儿子总不比右儿子短）</p>
+<p>可以存一下当前代表的串的所有 Significant Suffixes，然后直接考虑合并（把右边的所有的直接加进来，左边的都循环一遍，字典序最长的加进去）得到父节点的 Significant Suffixes 即可。（看不懂的看代码）</p>
+<p>由 <strong>[Theorem 2.3.2 Lambda Log Theorem]</strong> 可知，每一个集合都是 <span class="math inline">\(O(\log n)\)</span> 大小的。这样的话，我们求出了每一个线段树上的区间的 Significant Suffixes。然后查询就在这 <span class="math inline">\(O(\log n)\)</span> 个区间内求 Significant Suffixes 的并，暴力比较即可。所以我们需要一个 <span class="math inline">\(O(1)\)</span> 比较两个串的方法（否则复杂度就挂了）。所以如果不带修的话我们可以考虑 SA。</p>
+<p>接下来考虑带修的情况。</p>
+<p>我们需要快速地求两个串的 LCP，又有一个线段树，所以可以很自然地想到一个线段树+字符串哈希+二分LCP的算法。复杂度 <span class="math inline">\(O(q \log^4 n)\)</span>，慢了点，我这种人傻常数大的就不用想了。</p>
+<p>我们考虑分块维护一些哈希，分 <span class="math inline">\(\sqrt n\)</span> 的块。我们维护一下每个点到块的末端的哈希值，然后维护一下每个块到串的末尾的哈希值。然后我们可以记一个块的全局的偏移量，就可以算了。每次查询的时候，我们只需要查 <span class="math inline">\(2\)</span> 次即可，<span class="math inline">\(O(1)\)</span> 查找。最终是 <span class="math inline">\(O(q \log ^3 n + q\sqrt n)\)</span> 的复杂度。</p>
+<p><strong>Q: 道理我都懂，但是为什么我挂了？</strong> A: 你是用了自然溢出哈希吧，换个双哈希试试。</p>
+<p><a href="https://paste.ubuntu.com/p/QJ2KdTcSw7/">Code</a></p>
+<h2 id="lyndon-array">3 Lyndon Array</h2>
+<h3 id="definition-2">3.1 Definition</h3>
+<p>我们有一个字符串 <span class="math inline">\(s\)</span>，则</p>
+<p><strong>Lyndon Array</strong>：<span class="math inline">\(\mathcal L[i] = \max \{j : s_i \cdots s_{j-1} \in L\}\)</span>，其中 <span class="math inline">\(L\)</span> 表示 Lyndon 串的集合。在 <span class="math inline">\(\prec_l\)</span> 意义下的 <span class="math inline">\(\mathcal L\)</span> 记为 <span class="math inline">\(\mathcal L_l\)</span>。</p>
+<p>这有啥子用？别急，先看性质。</p>
+<h3 id="non-intersecting-substrings">3.2 Non Intersecting Substrings</h3>
+<h4 id="theorem-3.2.1-non-intersecting-lyndon-substrings">Theorem 3.2.1 Non Intersecting Lyndon Substrings</h4>
+<blockquote>
+<p>最长的 Lyndon 子串是无交集的，即 <span class="math inline">\(i &lt; j &lt; \mathcal L[i]\)</span>，我们有 <span class="math inline">\(\mathcal L[j] \le \mathcal L[i]\)</span>。</p>
+</blockquote>
+<p>我们假设存在 <span class="math inline">\(i,j\)</span> 使得 <span class="math inline">\(\mathcal L[i] &lt; \mathcal L[j]\)</span>。</p>
+<p>我们假设 <span class="math inline">\(u = s_i \cdots s_{j-1}\)</span>，<span class="math inline">\(v = s_j \cdots s_{\mathcal L[i] - 1}\)</span>，<span class="math inline">\(w = s_{\mathcal L[i]} \cdots s_{\mathcal L[j] - 1}\)</span>，且 <span class="math inline">\(u,v,w\)</span> 满足 <span class="math inline">\({uv}, {vw} \in L\)</span>。</p>
+<p>对于所有的 <span class="math inline">\(s \in \operatorname{suf}^+({uvw})\)</span>，且满足 <span class="math inline">\(|s| \le |v| + |w|\)</span>，有 <span class="math inline">\(s \triangleleft {vw} \sqsupseteq v \triangleleft {uv}\)</span>。<span class="math inline">\(\implies {uvw} \triangleleft s\)</span>。</p>
+<p>对于所有的 <span class="math inline">\(s \in \operatorname{suf}^+({uvw})\)</span>，且满足 <span class="math inline">\(|s| &gt; |v| + |w|\)</span>，有 <span class="math inline">\({svw} \sqsupseteq {sv} \triangleleft {uv}\)</span>。<span class="math inline">\(\implies {uvw} \triangleleft {svw}\)</span>。</p>
+<p>所以 <span class="math inline">\({uvw} \in L\)</span>，矛盾。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="suffix-lyndon-arrays">3.3 Suffix &amp; Lyndon Arrays</h3>
+<p>我们设 <span class="math inline">\(\operatorname{suf}(i) = s_i \cdots s_{n-1}\)</span>，即一个后缀。</p>
+<p>而我们有 <span class="math inline">\(s_i \cdots s_{\mathcal L[i] - 1} \triangleleft s_j \cdots s_{\mathcal L[i] - 1}\)</span>。</p>
+<p><span class="math inline">\(\implies \operatorname{suf}(i) \triangleleft \operatorname{suf}(j)\quad(i&lt;j&lt;\mathcal L[i])\)</span></p>
+<p>于是我们设 <span class="math display">\[
+\operatorname{NSV}(i) = \min\{\{j &gt; i : \neg(\operatorname{suf}(i) \triangleleft \operatorname{suf}(j))\} \cup \{n\}\}
+\]</span> 显然 <span class="math inline">\(\mathcal L[i] \le \operatorname {NSV}(i)\)</span>。</p>
+<p>我们还有 <span class="math inline">\(\neg(\operatorname{suf}(i) \triangleleft \operatorname{suf}(j)) \Longleftrightarrow \operatorname{suf}(j) \sqsubseteq \operatorname{suf}(i) \vee \operatorname{suf}(j) \triangleleft \operatorname{suf}(i) \Longleftrightarrow \operatorname{rank}(i) &gt; \operatorname{rank}(j)\)</span>。</p>
+<h4 id="theorem-3.3.1-nsv-theorem">Theorem 3.3.1 NSV Theorem</h4>
+<p>有了上述定义，证这个是不是非常简单呢 XD</p>
+<blockquote>
+<p><span class="math inline">\(\mathcal L[i] = \operatorname{NSV}(i)\)</span></p>
+</blockquote>
+<p>原命题可以很方便地转化为 <span class="math inline">\(s_i \cdots s_{\operatorname{NSV}(i) - 1} \in L\)</span>。</p>
+<p>分类讨论：</p>
+<ol type="1">
+<li><p>如果 <span class="math inline">\(\operatorname{NSV}(i) = n\)</span>，<span class="math inline">\(s_i \cdots s_{\operatorname{NSV}(i) - 1} = \operatorname{suf}(i)\)</span></p></li>
+<li><p>否则的话我们肯定有一些 <span class="math inline">\(j\)</span> 使得 <span class="math inline">\(\operatorname{suf}(i) \triangleleft \operatorname{suf}(j)\)</span>。</p>
+<p>然后我们继续来讨论：</p>
+<ol type="i">
+<li><p>如果 <span class="math inline">\(s_1 \cdot s_{\operatorname{NSV}(i) - 1} \triangleleft s_{j} \cdots s_{\operatorname{NSV}(i) - 1}\)</span>，易证。</p></li>
+<li><p>反之，结合 <span class="math inline">\(\operatorname{suf}(i + (\operatorname{NSV}(i) - j) - 1) \triangleright \operatorname{suf}(i)&gt;\operatorname{suf}(\operatorname{NSV}(i))\)</span>，易证矛盾。（你看不出来？明显与 <span class="math inline">\(\operatorname{suf}(i) \triangleright \operatorname{suf}(j)\)</span> 矛盾）。<span class="math inline">\(\blacksquare\)</span></p></li>
+</ol></li>
+</ol>
+<h2 id="exercises-2">Exercises</h2>
+<h3 id="ex-i-简单字符串">Ex I 简单字符串</h3>
+<blockquote>
+<p><a href="https://ac.nowcoder.com/acm/problem/201916">牛客</a></p>
+</blockquote>
+<p>留作习题。</p>
+<h2 id="runs">4 Runs</h2>
+<h3 id="definition-3">4.1 Definition</h3>
+<p>这个东西的英文名是 runs，他的中文名是顶天立地串……（好中二啊）</p>
+<p>我们有一个串，runs 是他的一些子串，满足：</p>
+<p><span class="math inline">\(p = \operatorname{per}(s_i\cdots s_{j-1})\le \dfrac {j-i}2\)</span>，<span class="math inline">\(s_{i-1} \ne s_{i-1}+p\)</span>，<span class="math inline">\(s_{j-p}=s_{j}\)</span></p>
+<p>更好理解的定义：</p>
+<p>定义一个字符串 <span class="math inline">\(|S|\)</span> 里的一个 run，指其内部一段两侧都不能扩展的<strong>周期子串</strong>，且周期至少完整出现两次。</p>
+<p>严格地说，一个 run 是一个 三元组 <span class="math inline">\((i,j,p)\)</span>，满足 <span class="math inline">\(p\)</span> 是 <span class="math inline">\(S[i..j]\)</span> 的最小周期，<span class="math inline">\(j-i+1 \ge 2p\)</span>，且满足如下两个条件：</p>
+<ul>
+<li>要么 <span class="math inline">\(i=1\)</span>，要么 <span class="math inline">\(S[i-1]\ne S[i-1+p]\)</span>；</li>
+<li>要么 <span class="math inline">\(j=n\)</span>，要么 <span class="math inline">\(S[j+1] \ne S[j+1-p]\)</span>。</li>
+</ul>
+<p>例如：<span class="math inline">\(S = \text{aababaababb}\)</span> 之中有 7 个 runs：<span class="math inline">\(S[1..2] = \text a^2\)</span>，<span class="math inline">\(S[1..10] = (\text{aabab})^2\)</span>，<span class="math inline">\(S[2..6] = (\text{ab})^{2.5}\)</span>，<span class="math inline">\(S[4..9] = (\text{aba})^2\)</span>，<span class="math inline">\(S[6..7] = \text a^2\)</span>，<span class="math inline">\(S[7..10] = (\text{ab})^2\)</span>，<span class="math inline">\(S[10..11] = \text b^2\)</span>。</p>
+<p>（实际上是 LOJ #173 的题面，题目是我造的，这一段是 EtoainWu 的文字）</p>
+<p>定义 <span class="math inline">\(Runs(w)\)</span> 表示字符串 <span class="math inline">\(w\)</span> 的所有 runs 的集合。</p>
+<p><span class="math inline">\(\rho(n)\)</span> 表示了在一个长为 <span class="math inline">\(n\)</span> 的字符串之中至多有多少组 runs，而 <span class="math inline">\(\sigma(n)\)</span> 表示了在一个长为 <span class="math inline">\(n\)</span> 的字符串之中所有 runs 的幂之和的最大值。</p>
+<p><strong>Lyndon Root</strong>：令 <span class="math inline">\(r=(i,j,p)\)</span> 是一个run，则他的 Lyndon Root 是一个 <span class="math inline">\(s[i..j]\)</span> 的长度为 <span class="math inline">\(p\)</span> 的 Lyndon 子串。</p>
+<p>每一个 run 都有一个 Lyndon root。</p>
+<h3 id="linear-runs">4.2 Linear Runs</h3>
+<h4 id="theorem-4.2.1-linear-runs-theorem">Theorem 4.2.1 Linear Runs Theorem</h4>
+<p>我们假设 <span class="math inline">\(\prec^0\)</span> 表示 <span class="math inline">\(&lt;\)</span>，而 <span class="math inline">\(\prec^1\)</span> 表示 <span class="math inline">\(&lt;^R\)</span>。（此处的 <span class="math inline">\(^R\)</span> 表示 reverse，给 <span class="math inline">\(\prec\)</span> 标号是为了方便）</p>
+<p><span class="math inline">\(\prec^0\)</span> 和 <span class="math inline">\(\prec^1\)</span> 的对应的 Lyndon Array 是 <span class="math inline">\(\mathcal L^0\)</span> 和 <span class="math inline">\(\mathcal L^1\)</span>.</p>
+<blockquote>
+<p><span class="math inline">\(\rho(n) \le 2n\)</span></p>
+</blockquote>
+<p>原命题可以转化为</p>
+<blockquote>
+<p>对于每个 runs，我们有存在 <span class="math inline">\(i\)</span> 和 <span class="math inline">\(t\)</span> 使得 <span class="math inline">\(s[i..\mathcal L^t[i] - 1]\)</span> 是 Lyndon root。</p>
+</blockquote>
+<p>我们令 <span class="math inline">\(w\)</span> 是 Lyndon root，<span class="math inline">\(w=s[k..s-1]\)</span>。</p>
+<p>分类讨论：</p>
+<ol type="1">
+<li><p>如果 <span class="math inline">\(j=|S|\)</span>，</p>
+<p>我们可以把 <span class="math inline">\(s[k .. |S| - 1]\)</span> 表示成 <span class="math inline">\({w^pw&#39;} \ (p \in N, w&#39; \in \operatorname{pref}(w))\)</span>。</p>
+<p>因为 <span class="math inline">\(\operatorname{CFL}({w^pw&#39;}) = {w^p\operatorname{CFL}(w&#39;)}\)</span>，所以 <span class="math inline">\(w\)</span> 是从 <span class="math inline">\(k\)</span> 开始的最长 Lyndon 前缀。</p></li>
+<li><p>如果 <span class="math inline">\(j&lt;|S|\)</span>，</p>
+<p>我们可以把 <span class="math inline">\(w\)</span> 表示成 <span class="math inline">\({uab}\)</span>，其中 <span class="math inline">\(a \ne b\)</span>。</p>
+<p>所以我们可以把 <span class="math inline">\(s_k \cdots s_{|S| - 1}\)</span> 表示成为 <span class="math inline">\({(uav)^pub}\)</span>。</p>
+<p>我们不妨假设 <span class="math inline">\(b \prec^t a\)</span>、</p>
+<p>因为我们有 <span class="math inline">\(\operatorname{CFL}^t({(uav)^pubh}) = (uav)^p\operatorname{CFL}^t({ubh})\)</span>，所以 <span class="math inline">\({uav}\)</span> 是 <span class="math inline">\(\prec^t\)</span> 下的最长 Lyndon 前缀。<span class="math inline">\(\blacksquare\)</span></p></li>
+</ol>
+<h4 id="theorem-4.2.2-the-runs-theorem">Theorem 4.2.2 The “Runs” Theorem</h4>
+<blockquote>
+<p><span class="math inline">\(\rho(n)&lt;n,\sigma(n)\leq3n-3\)</span></p>
+</blockquote>
+<p><del>几乎从 WC2019 课件搬运的证明</del></p>
+<p>定义 <span class="math inline">\(Beg(I)\)</span> 表示 <span class="math inline">\(I\)</span> 中所有区间的起始端点的集合。</p>
+<h5 id="lemma-a">Lemma A</h5>
+<blockquote>
+<p>对于一个串的 Lyndon Array <span class="math inline">\(\mathcal L^0[i]\)</span> 和 <span class="math inline">\(\mathcal L^1[i]\)</span>，总有 <span class="math inline">\(\mathcal L^{l}[i] = [i..i], \mathcal L^{1-l}[i] = [i..j] (j\ne i)\)</span>，其中 <span class="math inline">\(l\in \{0,1\}\)</span>。</p>
+</blockquote>
+<p>令 <span class="math inline">\(k=\max\{k&#39;\ |\hat{w}_{k&#39;}\ne \hat{w}_i,k&#39;&gt;i\}\)</span>。</p>
+<p>由 <strong><a href="#theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</a></strong> 可得：</p>
+<ul>
+<li>若 <span class="math inline">\(\hat w_k &lt; \hat w_i\)</span>，则 <span class="math inline">\(\mathcal L^0[i]=[i..i]\)</span>，且 <span class="math inline">\(\mathcal L^1[i]=[i..j]\ (j\geq k&gt;i)\)</span>。</li>
+<li>若 <span class="math inline">\(\hat w_k &gt; \hat w_i\)</span>，则 <span class="math inline">\(\mathcal L^1[i]=[i..i]\)</span>，且 <span class="math inline">\(\mathcal L^0[i]=[i..j]\ (j\geq k&gt;i)\)</span>。<span class="math inline">\(\blacksquare\)</span></li>
+</ul>
+<h5 id="lemma-b">Lemma B</h5>
+<blockquote>
+<p>若 <span class="math inline">\(r=(i,j,p)\)</span> 为一个run，则对于 <span class="math inline">\(\hat{w}[j+1]\prec_l \hat{w}[j+1-p]\)</span> 的 <span class="math inline">\(l\)</span>，<span class="math inline">\(\forall r\)</span> 的 <span class="math inline">\(\prec_l\)</span> 意义下的 Lyndon Root <span class="math inline">\(\hat w[i_{\lambda}..j_{\lambda}]\)</span> 都与 <span class="math inline">\(\mathcal L^l(i_{\lambda})\)</span>相等。</p>
+</blockquote>
+<p><span class="math inline">\(\because \hat{w}[j+1]\ne\hat{w}[j+1-p]\)</span>，令 <span class="math inline">\(l\in\{0,1\}\)</span> 满足 <span class="math inline">\(\hat{w}[j+1]\prec_l\hat{w}[j+1-p]\)</span>。</p>
+<p>令 <span class="math inline">\(\lambda=[i_{\lambda}...j_{\lambda}]\)</span> 为 <span class="math inline">\(r\)</span> 的 <span class="math inline">\(\prec_l\)</span> 意义下的一个 Lyndon Root，由 <strong><a href="#theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</a></strong>，<span class="math inline">\([i_{\lambda}...j_{\lambda}]=\mathcal L^l(i_{\lambda})\)</span>。<span class="math inline">\(\blacksquare\)</span></p>
+<p>对于一个run <span class="math inline">\(r=(i,j,p)\)</span>，令 <span class="math inline">\(B_r=\{\lambda=[i_{\lambda}...j_{\lambda}]|\lambda\)</span> 为 <span class="math inline">\(r\)</span> 的 <span class="math inline">\(\prec_l\)</span> 意义下的一个 Lyndon Root 且 <span class="math inline">\(i_{\lambda}\ne i\}\)</span>。即 <span class="math inline">\(B_r\)</span> 表示所有 <span class="math inline">\(r\)</span> 的关于 <span class="math inline">\(\prec_l\)</span> 的 Lyndon Root 构成的集合，但要除去开头位置 <span class="math inline">\(i\)</span> 处开始的 Lyndon Root。有 <span class="math inline">\(|Beg(B_r)|=|B_r|\geq \lfloor e_r-1\rfloor\geq 1\)</span>，其中 <span class="math inline">\(e_r\)</span> 为 <span class="math inline">\(r\)</span> 的指数。</p>
+<h5 id="lemma-c">Lemma C</h5>
+<blockquote>
+<p>两个不同的 run <span class="math inline">\(r,r&#39;\)</span>，<span class="math inline">\(Beg(B_r)\cap Beg(B_{r&#39;})\)</span> 为空。</p>
+</blockquote>
+<p>反证，假设存在 <span class="math inline">\(i\in Beg(B_r)\cap Beg(B_{r&#39;})\)</span>，并且 <span class="math inline">\(\lambda=[i...j_{\lambda}]\in B_r\)</span>，<span class="math inline">\(\lambda&#39;=[i...j_{\lambda&#39;}]\in B_{r&#39;}\)</span>。</p>
+<p>令 <span class="math inline">\(l\in\{0,1\}\)</span> 满足 <span class="math inline">\(\lambda=\mathcal L^l[i]\)</span>，由于 <span class="math inline">\(\lambda\ne \lambda&#39;\)</span>，有 <span class="math inline">\(\lambda&#39;=\mathcal L^{1-l}[i]\)</span>。</p>
+<p>由 <strong>Lemma A</strong>，<span class="math inline">\(\lambda\)</span> 和 <span class="math inline">\(\lambda&#39;\)</span> 中有且只有一个为 <span class="math inline">\([i..i]\)</span>。</p>
+<p>不妨设 <span class="math inline">\(\lambda=[i..i]\)</span>，那么 <span class="math inline">\(j_{\lambda&#39;}&gt;i\)</span>。</p>
+<p>由于 <span class="math inline">\(w[i...j_{\lambda&#39;}]\)</span> 为一个 Lyndon Word，有 <span class="math inline">\(w[i]\ne w[j_{\lambda&#39;}]\)</span>。</p>
+<p>由 <span class="math inline">\(B_r\)</span> 和 <span class="math inline">\(B_{r&#39;}\)</span> 的定义，<span class="math inline">\(r\)</span> 和 <span class="math inline">\(r&#39;\)</span> 的开始位置均小于 <span class="math inline">\(i\)</span>，这意味着 <span class="math inline">\(w[i-1]=w[i]\)</span>（由 <span class="math inline">\(r\)</span> 的周期性），并且 <span class="math inline">\(w[i-1]=w[j_{\lambda&#39;}]\)</span>（由 <span class="math inline">\(r&#39;\)</span> 的周期性）。矛盾 <span class="math inline">\(\blacksquare\)</span></p>
+<p>任意的一个 run <span class="math inline">\(r\)</span> 可以被赋予一个两两不交的非空位置集合 <span class="math inline">\(Beg(B_r)\)</span>。并且，由于 <span class="math inline">\(1\notin Beg(B_r)\)</span> 对于任意的一个 <span class="math inline">\(r\)</span> 均成立，有 <span class="math inline">\(\sum_{r\in Runs(w)}|B_r|=\sum_{r\in Runs(w)}|Beg(B_r)|\leq |w|-1\)</span>。</p>
+<p>考虑字符串 <span class="math inline">\(w\)</span>，由于对于任意 <span class="math inline">\(r\in Runs(w)\)</span>，有 <span class="math inline">\(|B_r|\geq1\)</span>，由 <strong>Lemma C</strong>，有 <span class="math inline">\(|Runs(w)|\leq\sum_{r\in Runs(w)}|B_r|\leq |w|-1\)</span>。</p>
+<p>考虑字符串 <span class="math inline">\(w\)</span>，令 <span class="math inline">\(e_r\)</span> 表示 <span class="math inline">\(r\)</span> 的指数。由于对于任意 <span class="math inline">\(r\in Runs(w)\)</span>，有 <span class="math inline">\(|B_r|\geq \lfloor e_r-1\rfloor&gt;e_r-2\)</span>，由 <strong>Lemma C</strong>，有 <span class="math inline">\(\sum_{r\in Runs(w)}(e_r-2)&lt;\sum_{r\in Runs(w)}\lfloor e_r-1\rfloor\leq\sum_{r\in Runs(w)}|B_r|\leq |w|-1\)</span>。因为 <span class="math inline">\(|Runs(w)|\leq |w|-1\)</span>，可得 <span class="math inline">\(\sum_{r\in Runs(w)}e_r\leq3n-3\)</span>。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="details-about-implementation">4.3 Details about Implementation</h3>
+<p>在实现 Runs 之前，你需要会字符串哈希或者后缀数组或者其他后缀数据结构。</p>
+<p>根据以上证明中的 <strong>Lemma B</strong>，每一个 runs 都会对应一个 Lyndon root，所以如果我们把 Lyndon Array 算出来了，就可以把每个 runs 对应的 Lyndon root 求出来。</p>
+<p>那么我们怎么求 Lyndon Array <span class="math inline">\(\mathcal L^0\)</span> 和 <span class="math inline">\(\mathcal L^1\)</span>？ <span class="math display">\[
+\mathcal{L}^0[i] = \mathrm{NSV}(i) = \min\{\{j &gt; i : \neg(\mathrm{suf}(i) \triangleleft \mathrm{suf}(j))\} \cup \{n\}\}
+\]</span> 而 <span class="math display">\[
+\begin{aligned}\mathcal{L}^1[i] &amp;= \mathrm{NSV}^R(i) \\&amp;= \min\{\{j &gt; i : \neg(\mathrm{suf}(i) \triangleleft^R \mathrm{suf}(j))\} \cup \{n\}\} \\&amp;= \min\{\{j &gt; i : \mathrm{suf}(i) \triangleleft \mathrm{suf}(j) \vee \mathrm{suf}(i) \sqsupseteq \mathrm{suf}(j))\} \cup \{n\}\}\end{aligned}
+\]</span> 所以我们考虑对于字符串的每个后缀都维护他的 CFL，方法是在头上插入一个新字符，然后判断是否合法。根据 <strong><a href="#theorem-1.2.1-lyndon-concatanation">Theorem 1.2.1 Lyndon Concatanation</a></strong>，如果遇到一个 Lyndon word 大于下一个的情况，合并即可。可以保证正确性。</p>
+<p>这里有一个实现上的细节，可能会好写一点。根据 <strong><a href="#theorem-1.2.4-lyndon-suffixes-and-lyndon-prefixes">Theorem 1.2.4 Lyndon Suffixes and Lyndon Prefixes</a></strong>，<span class="math inline">\(w_i\)</span> 是 <span class="math inline">\(w_iw_{i+1}\cdots w_k\)</span> 的最小前缀，所以比较两个 Lyndon word 的字典序相当于比较两个后缀的大小，而这个是比做一个 lcp 要简单多的。</p>
+<p>所以至此 Lyndon Array 已经求完了，具体实现细节可以看代码。</p>
+<p>接下来我们只要使用 Lyndon Array 扩展出 runs 就可以了，具体的做法是求出 lcp，即如果当前的 Lyndon Array <span class="math inline">\(\mathcal L[i] = (l..r)\)</span>，则我们 lcp 求出最长的 <span class="math inline">\(s[l..l+l_1-1]=s[r+1..r+l_1], s[l-l_2..l-1]=s[r-l_2..r-1]\)</span>。</p>
+<p>根据 runs 的定义，如果 <span class="math inline">\(l_1 + l_2 \ge 2(l - r + 1)\)</span>，那么我们就找到了一个 run <span class="math inline">\((l-l_2, r+l_1-1, r-l+1)\)</span>。</p>
+<p>如果我们使用 <span class="math inline">\(\mathcal O(n \log n)\)</span> 的 SA 和 <span class="math inline">\(\mathcal O(n \log n)-\mathcal O(1)\)</span> 的 rmq 算法，我们就可以在 <span class="math inline">\(\mathcal O(n \log n)\)</span> 的时间复杂度之内求出所有的 runs。</p>
+<p>如果我们使用 SAIS 和 <span class="math inline">\(\mathcal O(n) - \mathcal O(1)\)</span> 的 rmq 算法，我们就可以 <span class="math inline">\(\mathcal O(n)\)</span> 求出所有的 runs。</p>
+<p>比较优秀的 <span class="math inline">\(\mathcal O(n) - \mathcal O(1)\)</span> 的 rmq 方法：<a href="https://zhuanlan.zhihu.com/p/86891529">叉姐的</a> 和 <a href="https://zhuanlan.zhihu.com/p/79423299">hqztrue的</a>。</p>
+<h3 id="template-1">Template</h3>
+<blockquote>
+<p><a href="https://www.luogu.com.cn/problem/P6656">Luogu P6656</a></p>
+</blockquote>
+<p>是我出的啦owo</p>
+<p><a href="https://paste.ubuntu.com/p/tPB3xtRJVh/">Code</a></p>
+<h2 id="lyndon-tree">5 Lyndon Tree</h2>
+<h3 id="definition-4">5.1 Definition</h3>
+<p><strong>标准划分</strong>：把一个 Lyndon Word 划分为他的字典序最小的后缀和其余的部分。两部分一定是 Lyndon Word。</p>
+<p><strong>Lyndon Tree</strong>：每一个节点都是一个 Lyndon Word，左儿子和右儿子对应一个标准划分。</p>
+<p><span class="math inline">\(\operatorname {Ltree}(S)\)</span> 表示一个根节点为 <span class="math inline">\(S\)</span> 的 Lyndon Tree。</p>
+<p>如图是一个串 <span class="math inline">\(\text{aababbaababa}\)</span> 的 Lyndon Tree：（论文图真香）</p>
+<p><img src="https://zght.gitee.io/pic/pics/Ltree.jpg" /></p>
+<p>我们先来观察性质，他是一棵笛卡尔树，所以<del>如果你不嫌麻烦的话可以用 Lyndon Tree 实现线性 runs</del>。</p>
+<p><strong>性质</strong>：如果我们的 Lyndon Tree 有一个 Lyndon word，记为 <span class="math inline">\(s[i..j]\)</span>，那么从 <span class="math inline">\(i\)</span> 到 <span class="math inline">\(j\)</span> 所有叶节点的 LCA 是 <span class="math inline">\([i..k]\)</span>，其中 <span class="math inline">\(i \le j \le k\)</span>。如果这个 Lyndon Word 是从 <span class="math inline">\(i\)</span> 开始的最长 Lyndon 串，则 LCA 一定是一个右子节点。如果 <span class="math inline">\(i=1\)</span>，则 LCA 为根节点。</p>
+<h3 id="weak-periodicity-lemma">5.2 Weak Periodicity Lemma</h3>
+<h4 id="theorem-5.2.1-weak-periodicity-lemma">Theorem 5.2.1 Weak Periodicity Lemma</h4>
+<blockquote>
+<p>我们有一个串 <span class="math inline">\(S\)</span> 有 <span class="math inline">\(p,q\)</span> 两个周期，满足 <span class="math inline">\(p&lt;q\)</span> 且 <span class="math inline">\(p + q \le |S|\)</span>，则 <span class="math inline">\(\gcd(p,q)\)</span> 也是 <span class="math inline">\(S\)</span> 的周期。</p>
+</blockquote>
+<p>这个应该很显然把……</p>
+<p>显然，<span class="math inline">\(S_i = S_{i+q} = S_{i-p+q} = S_{i-p} = S_{i-p+q}\)</span>。所以 <span class="math inline">\(q-p\)</span> 也是 <span class="math inline">\(S\)</span> 的周期。</p>
+<p>然后辗转相除法可以证得 <span class="math inline">\(\gcd(p,q)\)</span> 也是 <span class="math inline">\(S\)</span> 的周期。<span class="math inline">\(\blacksquare\)</span></p>
+<h4 id="fact-5.2.2-periodicity-lemma">Fact 5.2.2 Periodicity Lemma</h4>
+<p>事实上有一个更强的结论。</p>
+<blockquote>
+<p>我们有一个串 <span class="math inline">\(S\)</span> 有 <span class="math inline">\(p,q\)</span> 两个周期，满足 <span class="math inline">\(p&lt;q\)</span> 且 <span class="math inline">\(p + q - \gcd(p,q) \le |S|\)</span>，则 <span class="math inline">\(\gcd(p,q)\)</span> 也是 <span class="math inline">\(S\)</span> 的周期。</p>
+</blockquote>
+<h3 id="period-queries">5.3 2-Period Queries</h3>
+<p>经典问题，可能是 Lyndon tree 的唯一应用= =</p>
+<blockquote>
+<p><span class="math inline">\(S\)</span> 是一个串，询问 <span class="math inline">\(S\)</span> 的某个子串有没有不超过长度一半的周期，如果有就求出最小周期。</p>
+</blockquote>
+<p>我们定义一个 run 是一个 <span class="math inline">\(\operatorname{exrun}(i,j)\)</span> 当且仅当他是 <span class="math inline">\((i&#39;, j&#39;, p)\)</span> 满足 <span class="math inline">\(i&#39; \le i, j&#39; \ge j, p \le (j-i+1)/2\)</span>。</p>
+<p>根据 <strong><a href="#theorem-5.2.1-weak-periodicity-lemma">Theorem 5.2.1 Weak Periodicity Lemma</a></strong>，exrun 唯一。如果我们找出了 <span class="math inline">\(\operatorname{exrun}(i,j)\)</span>，则我们就可以回答询问。</p>
+<p>我们先构造出两棵 Lyndon Tree <span class="math inline">\(\operatorname {Ltree}^0(S)\)</span> 和 <span class="math inline">\(\operatorname {Ltree}^1(S)\)</span>。</p>
+<p>然后我们在两棵 Lyndon Tree 上面分别寻找从 <span class="math inline">\(i\)</span> 到 <span class="math inline">\((i+j)/2\)</span> 的 LCA，判断其右子节点的 runs 是否符合 exrun。</p>
+<p>证明留作习题。</p>
+<p>听说可以搬到树上什么的……还是不要出这种东西吧……</p>
+<h2 id="three-squares-lemma">6 Three Squares Lemma</h2>
+<h3 id="definition-5">6.1 Definition</h3>
+<p><strong>Squares</strong>: 能表示成 <span class="math inline">\(x^2\)</span> 的串。</p>
+<p><strong>Primitive Squares</strong>: 不能再拆的 Squares，即最小周期为自身长度的一半的字符串。如 <span class="math inline">\(x^2+x\)</span> 一定是一个 Primitive Square。</p>
+<h3 id="three-squares-lemma-1">6.2 Three Squares Lemma</h3>
+<h4 id="theorem-6.2.1-three-squares-lemma">Theorem 6.2.1 Three Squares Lemma</h4>
+<blockquote>
+<p>我们有 3 个 Primitive Squares，为 <span class="math inline">\(u^2\)</span>，<span class="math inline">\(v^2\)</span> 和 <span class="math inline">\(w^2\)</span>，满足 <span class="math inline">\(|u|&lt;|v|&lt;|w|\)</span>。</p>
+<p>则我们有 <span class="math inline">\(|u| + |v| \le |w|\)</span>。</p>
+</blockquote>
+<p>反证法，假设 <span class="math inline">\(|u|+|v| &gt; |w|\)</span> 成立，则 <span class="math inline">\(|w|-|v|\)</span> 为 <span class="math inline">\(u\)</span> 和 <span class="math inline">\(v\)</span> 的周期。</p>
+<p>如果 <span class="math inline">\(2|u| \le |v|\)</span>，则 <span class="math inline">\(|w|-|v| &lt; |u|\)</span> 是 <span class="math inline">\(u^2\)</span> 的周期，故 <span class="math inline">\(u^2\)</span> 不是一个 Primitive Square，矛盾。</p>
+<p>否则，<span class="math inline">\(|u|\)</span> 和 <span class="math inline">\(|w|-|v|\)</span> 都是 <span class="math inline">\(v\)</span> 的周期，而 <span class="math inline">\(u^2\)</span> 是一个 Primitive Square，所以 <span class="math inline">\(u\)</span> 不是一个周期串，则 <span class="math inline">\(|u|+|w|&gt;2|v|\)</span>。</p>
+<p>我们令 <span class="math inline">\(w=vs_1\)</span>，<span class="math inline">\(u=s_1s_3\)</span>，<span class="math inline">\(v=ws_2=s_1s_3s_2\)</span>。显然，<span class="math inline">\(|s_2| &lt; |s_1|\)</span>。</p>
+<p>考虑串 <span class="math inline">\(s_3 s_2\)</span>，它有周期 <span class="math inline">\(|s_2|\)</span>。由于 <span class="math inline">\(|s_1|\)</span> 是 <span class="math inline">\(u\)</span> 的周期，可得 <span class="math inline">\(s_3s_2\)</span> 是 <span class="math inline">\(u\)</span> 的前缀，所以 <span class="math inline">\(|s_3|\)</span> 也是它的周期。</p>
+<p>根据 <strong><a href="#theorem-5.2.1-weak-periodicity-lemma">Theorem 5.2.1 Weak Periodicity Lemma</a></strong>，<span class="math inline">\(r=\gcd(|s_2|,|s_3|)\)</span> 是它的周期。而 <span class="math inline">\(|s_2|\)</span> 本身同时是 <span class="math inline">\(u\)</span> 的周期，因此可得 <span class="math inline">\(r\)</span> 是 <span class="math inline">\(u\)</span> 的周期。</p>
+<p>接着考虑串 <span class="math inline">\(u=s_1s_3\)</span>。它的周期有 <span class="math inline">\(|s_1|\)</span> 和 <span class="math inline">\(r\)</span>，而 <span class="math inline">\(r\le|s_3|\)</span>，根据 <strong><a href="#theorem-5.2.1-weak-periodicity-lemma">Theorem 5.2.1 Weak Periodicity Lemma</a></strong>，<span class="math inline">\(r&#39;=\gcd(r,|s_1|)\)</span> 也是 <span class="math inline">\(u\)</span> 的周期。然而 <span class="math inline">\(|s_1|\)</span> 和 <span class="math inline">\(|s_3|\)</span> 都是 <span class="math inline">\(r&#39;\)</span> 的倍数，这表示 <span class="math inline">\(u^2\)</span> 也有周期 <span class="math inline">\(r&#39;\)</span>，矛盾。<span class="math inline">\(\blacksquare\)</span></p>
+<p>由此我们有 2 个显然的结论：</p>
+<h4 id="theorem-6.2.2-number-of-primitive-squares">Theorem 6.2.2 Number of Primitive Squares</h4>
+<blockquote>
+<p>Primitive Squares 的数量级为 <span class="math inline">\(\mathcal O(n\log n)\)</span>。</p>
+</blockquote>
+<p>显然。</p>
+<h4 id="theorem-6.2.3-different-primitive-squares">Theorem 6.2.3 Different Primitive Squares</h4>
+<blockquote>
+<p>本质不同的 Primitive Squares 不超过 <span class="math inline">\(2n\)</span> 个。</p>
+</blockquote>
+<p>每个位置最多出现 2 个以这个位置为结尾的 Primitive Squares。<span class="math inline">\(\blacksquare\)</span></p>
+<h3 id="implementation">6.3 Implementation</h3>
+<p>首先我们可以想到一种十分显然的方法，因为数量级为 <span class="math inline">\(\mathcal O(n \log n)\)</span>，而 primitive squares 一定是 runs 的一部分，所以所以我们可以在每一个 runs 上面暴力求是否有 runs。时间复杂度 <span class="math inline">\(\mathcal O(n \log n)\)</span>。</p>
+<p>方法二，枚举平方串的长度，lcp。</p>
+<h2 id="扯淡">7 扯淡</h2>
+<p>我在出 LOJ #173 的时候，发现有一个非常强的暴力，就是暴力地去做 lcp 和 lcs。</p>
+<p>后来我经过不懈努力使用 <code>aaaaa...ab</code> 这个串卡掉了他，但是其实考场上如果时间不够的话写这个暴力其实是非常优秀的，<del>毕竟我见过的两个 runs 题都没有卡这个暴力</del>。</p>
+<h2 id="exercises-3">Exercises</h2>
+<h3 id="ex-j-集训队作业2018-串串划分">Ex J [集训队作业2018] 串串划分</h3>
+<blockquote>
+<p><a href="http://uoj.ac/problem/429">UOJ</a></p>
+<p>给你个串 <span class="math inline">\(S\ (|S| \le 10^5)\)</span>，切成若干段，其中每一段是 primitive 的，且相邻两个串是不相等的。求方案数模 <span class="math inline">\(998244353\)</span>。</p>
+</blockquote>
+<p>首先考虑 dp。<span class="math inline">\(f_i\)</span> 表示 <span class="math inline">\(\operatorname{suf}(i)\)</span> 的划分方案数。可以得到这么一个柿子：（当然，如果考虑划分前缀也是可以的 <span class="math display">\[
+f_i = \sum _{j&lt;i}f_j \cdot (-1)^{\sigma(j\cdots i) - 1}
+\]</span> 其中，<span class="math inline">\(\sigma(s)\)</span> 是这样定义的：对于字符串 <span class="math inline">\(s\)</span>，他的最小循环节的循环的长度为 <span class="math inline">\(\sigma(s)\)</span>。</p>
+<p>比如，对于串 <span class="math inline">\(\color{blue}\text{abcabcabc}\color{red}\text{defg}\)</span>，他的 <span class="math inline">\(\sigma = 3\)</span>，因为 <span class="math inline">\(\color{blue}\text{abc}\)</span> 为最小循环节，循环了 <span class="math inline">\(3\)</span> 次。</p>
+<p>这个复杂度是 <span class="math inline">\(\mathcal O(n^2)\)</span>，无法接受。</p>
+<p>考虑优化：把循环串分成一个初始的循环串和一些循环，分开计算贡献。</p>
+<p>我们认为一个循环串初始的时候的最小周期一定是大于等于长度的一半的（否则会重复的）。 <span class="math display">\[
+f_i = \left[\sum_{j&lt;i}f_j\right] + \sum _{j&lt;i} f_j\left[(-1)^{\sigma(j\cdots i)-1}-1\right]
+\]</span> 然于是我们把 Primitive squares 和 runs 求出来转移就好了。时间复杂度为 <span class="math inline">\(\mathcal O(n \log n)\)</span>。</p>
+<p><a href="https://paste.ubuntu.com/p/9sfQnGZyzn/">Code</a></p>
+<h3 id="ex-k-zjoi2020-字符串">Ex K [ZJOI2020] 字符串</h3>
+<p>留作习题。</p>
+<h2 id="reference">Reference</h2>
+<ul>
+<li>Roger Conant Lyndon. On Burnside’s problem. Transactions of the American Mathematical Society, 77(2):202–215, 1954.</li>
+<li>Jean-Pierre Duval. Factorizing words over an ordered alphabet. Journal of Algorithms, 4(4):363–381, 1983.</li>
+<li>https://www.luogu.com.cn/blog/xht37/solution-p1368</li>
+<li>https://oi-wiki.org/string/lyndon/</li>
+<li>https://codeforces.ml/blog/entry/18538?locale=en</li>
+<li>Babenko, M.A., Gawrychowski, P., Kociumaka, T., Kolesnichenko, I.I., &amp; Starikovskaya, T. (2016). Computing minimal and maximal suffixes of a substring. Theor. Comput. Sci., 638, 112-121.</li>
+<li>Tomohiro, I., Nakashima, Y., Inenaga, S., Bannai, H., &amp; Takeda, M. (2016). Faster Lyndon factorization algorithms for SLP and LZ78 compressed text. Theor. Comput. Sci., 656, 215-224.</li>
+<li>Kociumaka, T. (2016). Minimal Suffix and Rotation of a Substring in Optimal Time. ArXiv, abs/1601.08051</li>
+<li>WC2019 营员交流</li>
+<li>https://zhuanlan.zhihu.com/p/85169630</li>
+<li>https://yhx-12243.github.io/OI-transit/records/lydsy4877%3Blg5211%3Buoj296%3Bloj2572.html</li>
+</ul>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/zghtyarecrenj " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:zghtyarecrenj@qq.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2021 &copy; | Theme <a href='https://github.com/orianna-zzo/AllinOne' target="_blank">AllinOne</a> by <a href='https://github.com/orianna-zzo' target="_blank">Orianna</a>  </span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://zghtyarecrenj.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>
