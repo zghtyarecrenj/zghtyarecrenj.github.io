@@ -303,7 +303,7 @@
 
     
       <li class="middot"></li>
-      <li>25 minutes read</li>
+      <li>34 minutes read</li>
     
   </ul>
   
@@ -620,7 +620,208 @@
 <p>我们需要快速地求两个串的 LCP，又有一个线段树，所以可以很自然地想到一个线段树+字符串哈希+二分LCP的算法。复杂度 <span class="math inline">\(O(q \log^4 n)\)</span>，慢了点，我这种人傻常数大的就不用想了。</p>
 <p>我们考虑分块维护一些哈希，分 <span class="math inline">\(\sqrt n\)</span> 的块。我们维护一下每个点到块的末端的哈希值，然后维护一下每个块到串的末尾的哈希值。然后我们可以记一个块的全局的偏移量，就可以算了。每次查询的时候，我们只需要查 <span class="math inline">\(2\)</span> 次即可，<span class="math inline">\(O(1)\)</span> 查找。最终是 <span class="math inline">\(O(q \log ^3 n + q\sqrt n)\)</span> 的复杂度。</p>
 <p><strong>Q: 道理我都懂，但是为什么我挂了？</strong> A: 你是用了自然溢出哈希吧，换个双哈希试试。</p>
-<p><a href="https://paste.ubuntu.com/p/QJ2KdTcSw7/">Code</a></p>
+<details>
+<p><summary>Code</summary></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" title="1"><span class="pp">#include </span><span class="im">&lt;cstdio&gt;</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">typedef</span> <span class="dt">long</span> <span class="dt">long</span> ll;</a>
+<a class="sourceLine" id="cb2-6" title="6"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">int</span> ui;</a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">long</span> <span class="dt">long</span> ull;</a>
+<a class="sourceLine" id="cb2-8" title="8"></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="kw">namespace</span> zghtyarecrenj_basic_templates { <span class="co">// the basic templates</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="pp">#define IL </span><span class="kw">inline</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="pp">#define CT </span><span class="at">const</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="pp">#define TT </span><span class="kw">template</span><span class="pp"> </span>&lt;<span class="kw">typename</span><span class="pp"> </span>Ty&gt;</a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="pp">#define OP </span><span class="kw">operator</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="pp">#define RG </span><span class="at">register</span></a>
+<a class="sourceLine" id="cb2-15" title="15"></a>
+<a class="sourceLine" id="cb2-16" title="16">TT IL Ty max(CT Ty &amp;a, CT Ty &amp;b) { <span class="cf">return</span> a &gt; b ? a : b; }</a>
+<a class="sourceLine" id="cb2-17" title="17">TT IL Ty min(CT Ty &amp;a, CT Ty &amp;b) { <span class="cf">return</span> a &lt; b ? a : b; }</a>
+<a class="sourceLine" id="cb2-18" title="18">TT IL <span class="dt">void</span> cmax(Ty &amp;a, CT Ty &amp;b) { <span class="cf">if</span> (b &gt; a) a = b; }</a>
+<a class="sourceLine" id="cb2-19" title="19">TT IL <span class="dt">void</span> cmin(Ty &amp;a, CT Ty &amp;b) { <span class="cf">if</span> (b &lt; a) a = b; }</a>
+<a class="sourceLine" id="cb2-20" title="20">TT IL <span class="dt">void</span> swap(Ty &amp;a, Ty &amp;b) { Ty c = a; a = b, b = c; }</a>
+<a class="sourceLine" id="cb2-21" title="21"></a>
+<a class="sourceLine" id="cb2-22" title="22"><span class="kw">class</span> Fast_IO_template {</a>
+<a class="sourceLine" id="cb2-23" title="23"> <span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb2-24" title="24">  <span class="at">static</span> <span class="at">const</span> <span class="dt">int</span> MaxBuff = <span class="dv">1</span> &lt;&lt; <span class="dv">15</span>;</a>
+<a class="sourceLine" id="cb2-25" title="25">    <span class="at">static</span> <span class="at">const</span> <span class="dt">int</span> MaxOut = <span class="dv">1</span> &lt;&lt; <span class="dv">24</span>;</a>
+<a class="sourceLine" id="cb2-26" title="26">    <span class="dt">char</span> b[MaxBuff], *S = b, *T = b;</a>
+<a class="sourceLine" id="cb2-27" title="27">    <span class="dt">char</span> buff[MaxOut], *iter = buff;</a>
+<a class="sourceLine" id="cb2-28" title="28">  <span class="dt">FILE</span> *ifile, *ofile;</a>
+<a class="sourceLine" id="cb2-29" title="29">    </a>
+<a class="sourceLine" id="cb2-30" title="30"> <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb2-31" title="31">    Fast_IO_template(<span class="dt">FILE</span> *a = stdin, <span class="dt">FILE</span> *b = stdout) { ifile = a, ofile = b; }</a>
+<a class="sourceLine" id="cb2-32" title="32">    ~Fast_IO_template() { fwrite(buff, <span class="dv">1</span>, iter - buff, ofile), iter = buff; }</a>
+<a class="sourceLine" id="cb2-33" title="33">    <span class="kw">inline</span> <span class="dt">char</span> getc() { <span class="cf">return</span> (S == T &amp;&amp; (T = (S = b) + fread(b, <span class="dv">1</span>, MaxBuff, ifile), S == T) ? <span class="dv">0</span> : *S++); }</a>
+<a class="sourceLine" id="cb2-34" title="34">    <span class="kw">inline</span> <span class="dt">void</span> putc(<span class="dt">char</span> c) { *iter++ = c; }</a>
+<a class="sourceLine" id="cb2-35" title="35">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span> &gt;&gt;(<span class="dt">char</span> &amp;c) { c = getc(); <span class="cf">return</span> *<span class="kw">this</span>; }</a>
+<a class="sourceLine" id="cb2-36" title="36">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span> &lt;&lt;(<span class="dt">char</span> c) { putc(c); <span class="cf">return</span> *<span class="kw">this</span>; }</a>
+<a class="sourceLine" id="cb2-37" title="37">    </a>
+<a class="sourceLine" id="cb2-38" title="38">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span> &gt;&gt;(<span class="dt">int</span>&amp; ans) {</a>
+<a class="sourceLine" id="cb2-39" title="39">        <span class="dt">char</span> ch; ans = <span class="dv">0</span>; <span class="dt">bool</span> neg = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-40" title="40">        <span class="cf">while</span> (ch = getc(), (ch &lt; <span class="ch">&#39;0&#39;</span> || ch &gt; <span class="ch">&#39;9&#39;</span>) &amp;&amp; ch != <span class="ch">&#39;-&#39;</span>) ;</a>
+<a class="sourceLine" id="cb2-41" title="41">        ch == <span class="ch">&#39;-&#39;</span> ? neg = <span class="dv">1</span> : ans = ch - <span class="ch">&#39;0&#39;</span>;</a>
+<a class="sourceLine" id="cb2-42" title="42">        <span class="cf">while</span> (ch = getc(), <span class="ch">&#39;0&#39;</span> &lt;= ch &amp;&amp; ch &lt;= <span class="ch">&#39;9&#39;</span>) ans = ans * <span class="dv">10</span> + ch - <span class="ch">&#39;0&#39;</span>;</a>
+<a class="sourceLine" id="cb2-43" title="43">        <span class="cf">if</span> (neg) ans = -ans; <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb2-44" title="44">    }</a>
+<a class="sourceLine" id="cb2-45" title="45">    </a>
+<a class="sourceLine" id="cb2-46" title="46">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span> &gt;&gt;(<span class="dt">char</span> *s) {</a>
+<a class="sourceLine" id="cb2-47" title="47">        <span class="dt">char</span> *iter = s;</a>
+<a class="sourceLine" id="cb2-48" title="48">        <span class="cf">while</span> (*iter = getc(), *iter == <span class="ch">&#39; &#39;</span> || *iter == <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span> || *iter == <span class="ch">&#39;</span><span class="sc">\r</span><span class="ch">&#39;</span>) ;</a>
+<a class="sourceLine" id="cb2-49" title="49">        <span class="cf">while</span> (*++iter = getc(), *iter &amp;&amp; *iter != <span class="ch">&#39; &#39;</span> &amp;&amp; *iter != <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span> &amp;&amp; *iter != <span class="ch">&#39;</span><span class="sc">\r</span><span class="ch">&#39;</span>) ;</a>
+<a class="sourceLine" id="cb2-50" title="50">        *iter = <span class="dv">0</span>; <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb2-51" title="51">    }</a>
+<a class="sourceLine" id="cb2-52" title="52">    </a>
+<a class="sourceLine" id="cb2-53" title="53">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span> &lt;&lt;(<span class="dt">int</span> x) {</a>
+<a class="sourceLine" id="cb2-54" title="54">        <span class="at">static</span> <span class="dt">int</span> stack[<span class="dv">110</span>];</a>
+<a class="sourceLine" id="cb2-55" title="55">        <span class="dt">int</span> O = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-56" title="56">        <span class="cf">if</span> (!x) putc(<span class="ch">&#39;0&#39;</span>);</a>
+<a class="sourceLine" id="cb2-57" title="57">        <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb2-58" title="58">            <span class="cf">if</span> (x &lt; <span class="dv">0</span>) x = -x, putc(<span class="ch">&#39;-&#39;</span>);</a>
+<a class="sourceLine" id="cb2-59" title="59">            <span class="cf">for</span> (; x; x /= <span class="dv">10</span>) stack[++O] = x % <span class="dv">10</span>;</a>
+<a class="sourceLine" id="cb2-60" title="60">            <span class="cf">for</span> (; O; putc(<span class="ch">&#39;0&#39;</span> + stack[O--]));</a>
+<a class="sourceLine" id="cb2-61" title="61">        }</a>
+<a class="sourceLine" id="cb2-62" title="62">        <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb2-63" title="63">    }</a>
+<a class="sourceLine" id="cb2-64" title="64">} io;</a>
+<a class="sourceLine" id="cb2-65" title="65">} <span class="co">// namespace zghtyarecrenj_basic_templates</span></a>
+<a class="sourceLine" id="cb2-66" title="66"></a>
+<a class="sourceLine" id="cb2-67" title="67"><span class="kw">using</span> <span class="kw">namespace</span> zghtyarecrenj_basic_templates;</a>
+<a class="sourceLine" id="cb2-68" title="68"></a>
+<a class="sourceLine" id="cb2-69" title="69"><span class="at">const</span> <span class="dt">int</span> N = <span class="dv">200000</span>;</a>
+<a class="sourceLine" id="cb2-70" title="70"><span class="at">const</span> <span class="dt">int</span> B = <span class="dv">450</span>;</a>
+<a class="sourceLine" id="cb2-71" title="71"></a>
+<a class="sourceLine" id="cb2-72" title="72"><span class="at">const</span> <span class="dt">int</span> base1 = <span class="dv">233</span>;</a>
+<a class="sourceLine" id="cb2-73" title="73"><span class="at">const</span> <span class="dt">int</span> base2 = <span class="fl">5e8</span>;</a>
+<a class="sourceLine" id="cb2-74" title="74"><span class="at">const</span> <span class="dt">int</span> mod = <span class="fl">1e9</span> + <span class="dv">9</span>;</a>
+<a class="sourceLine" id="cb2-75" title="75"></a>
+<a class="sourceLine" id="cb2-76" title="76"><span class="dt">int</span> n, q, c[N];</a>
+<a class="sourceLine" id="cb2-77" title="77"><span class="bu">std::</span>vector&lt;<span class="dt">int</span>&gt; tree[N &lt;&lt; <span class="dv">2</span>];</a>
+<a class="sourceLine" id="cb2-78" title="78"></a>
+<a class="sourceLine" id="cb2-79" title="79"><span class="kw">namespace</span> Block {</a>
+<a class="sourceLine" id="cb2-80" title="80"><span class="dt">int</span> bs, bdelta[B], power[N + <span class="dv">1</span>], psum[B + <span class="dv">1</span>], intrah[B][B], interh[B];</a>
+<a class="sourceLine" id="cb2-81" title="81"></a>
+<a class="sourceLine" id="cb2-82" title="82"><span class="kw">inline</span> <span class="dt">int</span> getc(<span class="dt">int</span> i) { <span class="cf">return</span> c[i] + bdelta[i / bs]; }</a>
+<a class="sourceLine" id="cb2-83" title="83"></a>
+<a class="sourceLine" id="cb2-84" title="84"><span class="kw">inline</span> <span class="dt">int</span> geth(<span class="dt">int</span> i) {</a>
+<a class="sourceLine" id="cb2-85" title="85">  <span class="cf">if</span> (i == -<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-86" title="86">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-87" title="87">  <span class="at">const</span> <span class="dt">int</span> bid = i / bs;</a>
+<a class="sourceLine" id="cb2-88" title="88">  i = i % bs;</a>
+<a class="sourceLine" id="cb2-89" title="89">  <span class="cf">return</span> ((ll)interh[bid] * power[i + <span class="dv">1</span>] + intrah[bid][i] + (ll)bdelta[bid] * psum[i + <span class="dv">1</span>]) % mod;</a>
+<a class="sourceLine" id="cb2-90" title="90">}</a>
+<a class="sourceLine" id="cb2-91" title="91"></a>
+<a class="sourceLine" id="cb2-92" title="92"><span class="dt">void</span> init() {</a>
+<a class="sourceLine" id="cb2-93" title="93">  bs = ceil(sqrt(<span class="fl">1.0</span> * n));</a>
+<a class="sourceLine" id="cb2-94" title="94">  power[<span class="dv">0</span>] = <span class="dv">1</span>, psum[<span class="dv">0</span>] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-95" title="95">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb2-96" title="96">    power[i] = (ll)power[i - <span class="dv">1</span>] * base1 % mod;</a>
+<a class="sourceLine" id="cb2-97" title="97">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= bs; ++i)</a>
+<a class="sourceLine" id="cb2-98" title="98">    psum[i] = (psum[i - <span class="dv">1</span>] + power[i - <span class="dv">1</span>]) % mod;</a>
+<a class="sourceLine" id="cb2-99" title="99">  <span class="cf">for</span> (<span class="dt">int</span> bid = <span class="dv">0</span>, s = <span class="dv">0</span>; s &lt; n; ++bid, s += bs) {</a>
+<a class="sourceLine" id="cb2-100" title="100">    interh[bid] = geth(s - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-101" title="101">    <span class="dt">int</span> h = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-102" title="102">    <span class="cf">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; bs &amp;&amp; s + r &lt; n; ++r) {</a>
+<a class="sourceLine" id="cb2-103" title="103">      h = ((ull)h * base1 + (c[s + r] + base2)) % mod;</a>
+<a class="sourceLine" id="cb2-104" title="104">      intrah[bid][r] = h;</a>
+<a class="sourceLine" id="cb2-105" title="105">    }</a>
+<a class="sourceLine" id="cb2-106" title="106">  }</a>
+<a class="sourceLine" id="cb2-107" title="107">}</a>
+<a class="sourceLine" id="cb2-108" title="108"></a>
+<a class="sourceLine" id="cb2-109" title="109"><span class="dt">void</span> hadd(<span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> d) {</a>
+<a class="sourceLine" id="cb2-110" title="110">  <span class="cf">for</span> (<span class="dt">int</span> bid = <span class="dv">0</span>, s = <span class="dv">0</span>; s &lt; n; ++bid, s += bs) {</a>
+<a class="sourceLine" id="cb2-111" title="111">    interh[bid] = geth(s - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-112" title="112">    <span class="cf">if</span> (a &lt;= s &amp;&amp; s + bs &lt;= b)</a>
+<a class="sourceLine" id="cb2-113" title="113">      bdelta[bid] += d;</a>
+<a class="sourceLine" id="cb2-114" title="114">    <span class="cf">else</span> <span class="cf">if</span> (s &lt; b &amp;&amp; a &lt; s + bs) {</a>
+<a class="sourceLine" id="cb2-115" title="115">      <span class="dt">int</span> h = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-116" title="116">      <span class="cf">for</span> (<span class="dt">int</span> r = <span class="dv">0</span>; r &lt; bs &amp;&amp; s + r &lt; n; ++r) {</a>
+<a class="sourceLine" id="cb2-117" title="117">        c[s + r] += bdelta[bid] + (a &lt;= s + r &amp;&amp; s + r &lt; b ? d : <span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb2-118" title="118">        h = ((ull)h * base1 + (c[s + r] + base2)) % mod;</a>
+<a class="sourceLine" id="cb2-119" title="119">        intrah[bid][r] = h;</a>
+<a class="sourceLine" id="cb2-120" title="120">      }</a>
+<a class="sourceLine" id="cb2-121" title="121">      bdelta[bid] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-122" title="122">    }</a>
+<a class="sourceLine" id="cb2-123" title="123">  }</a>
+<a class="sourceLine" id="cb2-124" title="124">}</a>
+<a class="sourceLine" id="cb2-125" title="125"></a>
+<a class="sourceLine" id="cb2-126" title="126"><span class="kw">template</span> &lt;<span class="dt">bool</span> flag = <span class="dv">1</span>&gt; <span class="dt">bool</span> cmp(<span class="dt">int</span> i, <span class="dt">int</span> j, <span class="dt">int</span> r) {</a>
+<a class="sourceLine" id="cb2-127" title="127">  <span class="dt">int</span> hi = geth(i - <span class="dv">1</span>), hj = geth(j - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-128" title="128">  <span class="dt">int</span> low = <span class="dv">0</span>, high = r - j + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-129" title="129">  <span class="cf">while</span> (low &lt; high) {</a>
+<a class="sourceLine" id="cb2-130" title="130">    <span class="dt">int</span> middle = low + high + <span class="dv">1</span> &gt;&gt; <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-131" title="131">    <span class="cf">if</span> (((ull)(hi + mod - hj) * power[middle] + geth(j + middle - <span class="dv">1</span>) + mod - geth(i + middle - <span class="dv">1</span>)) % mod == <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-132" title="132">      low = middle;</a>
+<a class="sourceLine" id="cb2-133" title="133">    <span class="cf">else</span></a>
+<a class="sourceLine" id="cb2-134" title="134">      high = middle - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-135" title="135">  }</a>
+<a class="sourceLine" id="cb2-136" title="136">  <span class="cf">return</span> j + low - <span class="dv">1</span> == r ? flag : getc(i + low) &lt; getc(j + low);</a>
+<a class="sourceLine" id="cb2-137" title="137">}</a>
+<a class="sourceLine" id="cb2-138" title="138">} <span class="co">// namespace Block</span></a>
+<a class="sourceLine" id="cb2-139" title="139"></a>
+<a class="sourceLine" id="cb2-140" title="140"><span class="kw">namespace</span> Sgt {</a>
+<a class="sourceLine" id="cb2-141" title="141"><span class="kw">inline</span> <span class="dt">void</span> pushup(<span class="dt">int</span> k, <span class="dt">int</span> l, <span class="dt">int</span> r) {</a>
+<a class="sourceLine" id="cb2-142" title="142">  <span class="kw">auto</span> &amp;sigsuf = tree[k] = tree[k * <span class="dv">2</span> + <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb2-143" title="143">  <span class="dt">int</span> best = -<span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-144" title="144">  <span class="cf">for</span> (<span class="dt">int</span> i : tree[k * <span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb2-145" title="145">    <span class="cf">if</span> (best == -<span class="dv">1</span> || Block::cmp(i, best, r)) best = i;</a>
+<a class="sourceLine" id="cb2-146" title="146">  sigsuf.push_back(best);</a>
+<a class="sourceLine" id="cb2-147" title="147">}</a>
+<a class="sourceLine" id="cb2-148" title="148"></a>
+<a class="sourceLine" id="cb2-149" title="149"><span class="dt">void</span> build(<span class="dt">int</span> k, <span class="dt">int</span> l, <span class="dt">int</span> r) {</a>
+<a class="sourceLine" id="cb2-150" title="150">  <span class="cf">if</span> (l == r) <span class="cf">return</span> (<span class="dt">void</span>)(tree[k] = {l});</a>
+<a class="sourceLine" id="cb2-151" title="151">  <span class="dt">int</span> mid = (l + r + <span class="dv">1</span>) / <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb2-152" title="152">  build(k * <span class="dv">2</span>, l, mid - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-153" title="153">  build(k * <span class="dv">2</span> + <span class="dv">1</span>, mid, r);</a>
+<a class="sourceLine" id="cb2-154" title="154">  pushup(k, l, r);</a>
+<a class="sourceLine" id="cb2-155" title="155">}</a>
+<a class="sourceLine" id="cb2-156" title="156"></a>
+<a class="sourceLine" id="cb2-157" title="157"><span class="dt">void</span> modify(<span class="dt">int</span> k, <span class="dt">int</span> l, <span class="dt">int</span> r, <span class="dt">int</span> a, <span class="dt">int</span> b) {</a>
+<a class="sourceLine" id="cb2-158" title="158">  <span class="cf">if</span> (b &lt; l || r &lt; a || (a &lt;= l &amp;&amp; r &lt;= b)) <span class="cf">return</span>;</a>
+<a class="sourceLine" id="cb2-159" title="159">  <span class="dt">int</span> mid = (l + r + <span class="dv">1</span>) / <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb2-160" title="160">  <span class="cf">if</span> (a &lt; mid) modify(k * <span class="dv">2</span>, l, mid - <span class="dv">1</span>, a, b);</a>
+<a class="sourceLine" id="cb2-161" title="161">  <span class="cf">if</span> (b &gt;= mid) modify(k * <span class="dv">2</span> + <span class="dv">1</span>, mid, r, a, b);</a>
+<a class="sourceLine" id="cb2-162" title="162">  pushup(k, l, r);</a>
+<a class="sourceLine" id="cb2-163" title="163">}</a>
+<a class="sourceLine" id="cb2-164" title="164"></a>
+<a class="sourceLine" id="cb2-165" title="165"><span class="dt">void</span> query(<span class="dt">int</span> k, <span class="dt">int</span> l, <span class="dt">int</span> r, <span class="dt">int</span> a, <span class="dt">int</span> b, <span class="dt">int</span> &amp;best) {</a>
+<a class="sourceLine" id="cb2-166" title="166">  <span class="cf">if</span> (b &lt; l || r &lt; a) <span class="cf">return</span>;</a>
+<a class="sourceLine" id="cb2-167" title="167">  <span class="cf">if</span> (a &lt;= l &amp;&amp; r &lt;= b) {</a>
+<a class="sourceLine" id="cb2-168" title="168">    <span class="cf">for</span> (<span class="dt">int</span> v : tree[k])</a>
+<a class="sourceLine" id="cb2-169" title="169">      <span class="cf">if</span> (best == -<span class="dv">1</span> || Block::cmp&lt;<span class="dv">0</span>&gt;(v, best, b))</a>
+<a class="sourceLine" id="cb2-170" title="170">        best = v;</a>
+<a class="sourceLine" id="cb2-171" title="171">    <span class="cf">return</span>;</a>
+<a class="sourceLine" id="cb2-172" title="172">  }</a>
+<a class="sourceLine" id="cb2-173" title="173">  <span class="dt">int</span> mid = (l + r + <span class="dv">1</span>) / <span class="dv">2</span>;</a>
+<a class="sourceLine" id="cb2-174" title="174">  <span class="cf">if</span> (b &gt;= mid) query(k * <span class="dv">2</span> + <span class="dv">1</span>, mid, r, a, b, best);</a>
+<a class="sourceLine" id="cb2-175" title="175">  <span class="cf">if</span> (a &lt; mid) query(k * <span class="dv">2</span>, l, mid - <span class="dv">1</span>, a, b, best);</a>
+<a class="sourceLine" id="cb2-176" title="176">}</a>
+<a class="sourceLine" id="cb2-177" title="177">} <span class="co">// namespace Sgt</span></a>
+<a class="sourceLine" id="cb2-178" title="178"></a>
+<a class="sourceLine" id="cb2-179" title="179"><span class="dt">int</span> main() {</a>
+<a class="sourceLine" id="cb2-180" title="180">  io &gt;&gt; n &gt;&gt; q;</a>
+<a class="sourceLine" id="cb2-181" title="181">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) io &gt;&gt; c[i];</a>
+<a class="sourceLine" id="cb2-182" title="182">  Block::init();</a>
+<a class="sourceLine" id="cb2-183" title="183">  Sgt::build(<span class="dv">1</span>, <span class="dv">0</span>, n - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb2-184" title="184">  <span class="cf">while</span> (q--) {</a>
+<a class="sourceLine" id="cb2-185" title="185">    <span class="dt">int</span> op, l, r, d;</a>
+<a class="sourceLine" id="cb2-186" title="186">    io &gt;&gt; op &gt;&gt; l &gt;&gt; r;</a>
+<a class="sourceLine" id="cb2-187" title="187">    --l, --r;</a>
+<a class="sourceLine" id="cb2-188" title="188">    <span class="cf">if</span> (op == <span class="dv">1</span>) {</a>
+<a class="sourceLine" id="cb2-189" title="189">      io &gt;&gt; d;</a>
+<a class="sourceLine" id="cb2-190" title="190">      Block::hadd(l, r + <span class="dv">1</span>, d);</a>
+<a class="sourceLine" id="cb2-191" title="191">      Sgt::modify(<span class="dv">1</span>, <span class="dv">0</span>, n - <span class="dv">1</span>, l, r);</a>
+<a class="sourceLine" id="cb2-192" title="192">    } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb2-193" title="193">      <span class="dt">int</span> best = -<span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb2-194" title="194">      Sgt::query(<span class="dv">1</span>, <span class="dv">0</span>, n - <span class="dv">1</span>, l, r, best);</a>
+<a class="sourceLine" id="cb2-195" title="195">      io &lt;&lt; best + <span class="dv">1</span> &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</a>
+<a class="sourceLine" id="cb2-196" title="196">    }</a>
+<a class="sourceLine" id="cb2-197" title="197">  }</a>
+<a class="sourceLine" id="cb2-198" title="198">  <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb2-199" title="199">}</a></code></pre></div>
+</details>
 <h2 id="lyndon-array">3 Lyndon Array</h2>
 <h3 id="definition-2">3.1 Definition</h3>
 <p>我们有一个字符串 <span class="math inline">\(s\)</span>，则</p>
@@ -763,7 +964,396 @@
 <p><a href="https://www.luogu.com.cn/problem/P6656">Luogu P6656</a></p>
 </blockquote>
 <p>是我出的啦owo</p>
-<p><a href="https://paste.ubuntu.com/p/tPB3xtRJVh/">Code</a></p>
+<details>
+<p><summary>Code</summary></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb3-1" title="1"><span class="pp">#pragma GCC target(&quot;sse,sse2,sse3,ssse3,sse4.1,sse4.2,avx,avx2,popcnt,tune=native&quot;)</span></a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="pp">#include </span><span class="im">&lt;bits/stdc++.h&gt;</span></a>
+<a class="sourceLine" id="cb3-4" title="4"></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw">typedef</span> <span class="dt">long</span> <span class="dt">long</span> ll;</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">int</span> ui;</a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">long</span> <span class="dt">long</span> ull;</a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="kw">namespace</span> standard_utilities {</a>
+<a class="sourceLine" id="cb3-10" title="10">  <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty&gt;</a>
+<a class="sourceLine" id="cb3-11" title="11">  <span class="kw">inline</span> Ty max(<span class="at">const</span> Ty &amp;a, <span class="at">const</span> Ty &amp;b) {</a>
+<a class="sourceLine" id="cb3-12" title="12">    <span class="cf">return</span> a &gt; b ? a : b;</a>
+<a class="sourceLine" id="cb3-13" title="13">  }</a>
+<a class="sourceLine" id="cb3-14" title="14"></a>
+<a class="sourceLine" id="cb3-15" title="15">  <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty&gt;</a>
+<a class="sourceLine" id="cb3-16" title="16">  <span class="kw">inline</span> Ty min(<span class="at">const</span> Ty &amp;a, <span class="at">const</span> Ty &amp;b) {</a>
+<a class="sourceLine" id="cb3-17" title="17">    <span class="cf">return</span> a &lt; b ? a : b;</a>
+<a class="sourceLine" id="cb3-18" title="18">  }</a>
+<a class="sourceLine" id="cb3-19" title="19"></a>
+<a class="sourceLine" id="cb3-20" title="20">  <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty&gt;</a>
+<a class="sourceLine" id="cb3-21" title="21">  <span class="kw">inline</span> <span class="dt">void</span> check_max(Ty &amp;a, <span class="at">const</span> Ty &amp;b) {</a>
+<a class="sourceLine" id="cb3-22" title="22">    <span class="cf">if</span> (b &gt; a) a = b;</a>
+<a class="sourceLine" id="cb3-23" title="23">  }</a>
+<a class="sourceLine" id="cb3-24" title="24"></a>
+<a class="sourceLine" id="cb3-25" title="25">  <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty&gt;</a>
+<a class="sourceLine" id="cb3-26" title="26">  <span class="kw">inline</span> <span class="dt">void</span> check_min(Ty &amp;a, <span class="at">const</span> Ty &amp;b) {</a>
+<a class="sourceLine" id="cb3-27" title="27">    <span class="cf">if</span> (b &lt; a) a = b;</a>
+<a class="sourceLine" id="cb3-28" title="28">  }</a>
+<a class="sourceLine" id="cb3-29" title="29"></a>
+<a class="sourceLine" id="cb3-30" title="30">  <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty&gt;</a>
+<a class="sourceLine" id="cb3-31" title="31">  <span class="kw">inline</span> <span class="dt">void</span> swap(Ty &amp;a, Ty &amp;b) {</a>
+<a class="sourceLine" id="cb3-32" title="32">    Ty c = a;</a>
+<a class="sourceLine" id="cb3-33" title="33">    a = b, b = c;</a>
+<a class="sourceLine" id="cb3-34" title="34">  }</a>
+<a class="sourceLine" id="cb3-35" title="35">} <span class="co">// namespace standard_utilities</span></a>
+<a class="sourceLine" id="cb3-36" title="36"></a>
+<a class="sourceLine" id="cb3-37" title="37"><span class="kw">using</span> <span class="kw">namespace</span> standard_utilities;</a>
+<a class="sourceLine" id="cb3-38" title="38"></a>
+<a class="sourceLine" id="cb3-39" title="39"><span class="kw">namespace</span> Fast_IO {</a>
+<a class="sourceLine" id="cb3-40" title="40">  <span class="at">const</span> <span class="dt">int</span> MaxBuff = <span class="dv">1</span> &lt;&lt; <span class="dv">15</span>;</a>
+<a class="sourceLine" id="cb3-41" title="41">  <span class="at">const</span> <span class="dt">int</span> MaxOut = <span class="dv">1</span> &lt;&lt; <span class="dv">24</span>;</a>
+<a class="sourceLine" id="cb3-42" title="42"></a>
+<a class="sourceLine" id="cb3-43" title="43">  <span class="dt">char</span> b[MaxBuff], *S = b, *T = b;</a>
+<a class="sourceLine" id="cb3-44" title="44">  <span class="dt">char</span> buff[MaxOut], *iter = buff;</a>
+<a class="sourceLine" id="cb3-45" title="45"></a>
+<a class="sourceLine" id="cb3-46" title="46">  <span class="kw">inline</span> <span class="dt">void</span> flush() {</a>
+<a class="sourceLine" id="cb3-47" title="47">    fwrite(buff, <span class="dv">1</span>, iter - buff, stdout), iter = buff;</a>
+<a class="sourceLine" id="cb3-48" title="48">  }</a>
+<a class="sourceLine" id="cb3-49" title="49"></a>
+<a class="sourceLine" id="cb3-50" title="50">  <span class="kw">inline</span> <span class="dt">char</span> get_char() {</a>
+<a class="sourceLine" id="cb3-51" title="51">    <span class="cf">return</span> (S == T &amp;&amp; (T = (S = b) + fread(b, <span class="dv">1</span>, MaxBuff, stdin), S == T) ? <span class="dv">0</span> : *S++);</a>
+<a class="sourceLine" id="cb3-52" title="52">  }</a>
+<a class="sourceLine" id="cb3-53" title="53"></a>
+<a class="sourceLine" id="cb3-54" title="54">  <span class="kw">inline</span> <span class="dt">void</span> put_char(<span class="dt">char</span> c) {</a>
+<a class="sourceLine" id="cb3-55" title="55">    <span class="cf">if</span> (iter - buff &gt;= <span class="dv">1</span> &lt;&lt; <span class="dv">24</span> - <span class="dv">1</span>) flush();</a>
+<a class="sourceLine" id="cb3-56" title="56">    *iter++ = c;</a>
+<a class="sourceLine" id="cb3-57" title="57">  }</a>
+<a class="sourceLine" id="cb3-58" title="58">  </a>
+<a class="sourceLine" id="cb3-59" title="59">  <span class="kw">struct</span> Fast_IO_template {</a>
+<a class="sourceLine" id="cb3-60" title="60">    ~Fast_IO_template() { flush(); }</a>
+<a class="sourceLine" id="cb3-61" title="61"></a>
+<a class="sourceLine" id="cb3-62" title="62">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span>&gt;&gt;(<span class="dt">char</span> &amp;c) {</a>
+<a class="sourceLine" id="cb3-63" title="63">      c = get_char();</a>
+<a class="sourceLine" id="cb3-64" title="64">      <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb3-65" title="65">    }</a>
+<a class="sourceLine" id="cb3-66" title="66"></a>
+<a class="sourceLine" id="cb3-67" title="67">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span>&lt;&lt;(<span class="dt">char</span> c) {</a>
+<a class="sourceLine" id="cb3-68" title="68">      put_char(c);</a>
+<a class="sourceLine" id="cb3-69" title="69">      <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb3-70" title="70">    }</a>
+<a class="sourceLine" id="cb3-71" title="71"></a>
+<a class="sourceLine" id="cb3-72" title="72">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span>&gt;&gt;(<span class="dt">char</span> *s) {</a>
+<a class="sourceLine" id="cb3-73" title="73">      <span class="dt">char</span> *iter = s;</a>
+<a class="sourceLine" id="cb3-74" title="74">      <span class="cf">while</span> (*iter = get_char(), *iter == <span class="ch">&#39; &#39;</span> || *iter == <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span> || *iter == <span class="ch">&#39;</span><span class="sc">\r</span><span class="ch">&#39;</span>);</a>
+<a class="sourceLine" id="cb3-75" title="75">      <span class="cf">while</span> (*++iter = get_char(), *iter &amp;&amp; *iter != <span class="ch">&#39; &#39;</span> &amp;&amp; *iter != <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span> &amp;&amp; *iter != <span class="ch">&#39;</span><span class="sc">\r</span><span class="ch">&#39;</span>);</a>
+<a class="sourceLine" id="cb3-76" title="76">      *iter = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-77" title="77">      <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb3-78" title="78">    }</a>
+<a class="sourceLine" id="cb3-79" title="79"></a>
+<a class="sourceLine" id="cb3-80" title="80">    <span class="kw">inline</span> Fast_IO_template &amp;<span class="kw">operator</span>&lt;&lt;(<span class="dt">int</span> x) {</a>
+<a class="sourceLine" id="cb3-81" title="81">      <span class="at">static</span> <span class="dt">int</span> stack[<span class="dv">110</span>];</a>
+<a class="sourceLine" id="cb3-82" title="82">      <span class="dt">int</span> O = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-83" title="83">      <span class="cf">if</span> (!x) put_char(<span class="ch">&#39;0&#39;</span>);</a>
+<a class="sourceLine" id="cb3-84" title="84">      <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb3-85" title="85">        <span class="cf">if</span> (x &lt; <span class="dv">0</span>) x = -x, put_char(<span class="ch">&#39;-&#39;</span>);</a>
+<a class="sourceLine" id="cb3-86" title="86">        <span class="cf">for</span> (; x; x /= <span class="dv">10</span>) stack[++O] = x % <span class="dv">10</span>;</a>
+<a class="sourceLine" id="cb3-87" title="87">        <span class="cf">for</span> (; O; put_char(<span class="ch">&#39;0&#39;</span> + stack[O--]));</a>
+<a class="sourceLine" id="cb3-88" title="88">      }</a>
+<a class="sourceLine" id="cb3-89" title="89">      <span class="cf">return</span> *<span class="kw">this</span>;</a>
+<a class="sourceLine" id="cb3-90" title="90">    }</a>
+<a class="sourceLine" id="cb3-91" title="91">  };</a>
+<a class="sourceLine" id="cb3-92" title="92">} <span class="co">// namespace Fast_IO</span></a>
+<a class="sourceLine" id="cb3-93" title="93"></a>
+<a class="sourceLine" id="cb3-94" title="94">Fast_IO::Fast_IO_template io;</a>
+<a class="sourceLine" id="cb3-95" title="95"></a>
+<a class="sourceLine" id="cb3-96" title="96"><span class="at">const</span> <span class="dt">int</span> N = <span class="fl">1e6</span> + <span class="dv">10</span>;</a>
+<a class="sourceLine" id="cb3-97" title="97"></a>
+<a class="sourceLine" id="cb3-98" title="98"><span class="kw">struct</span> my_tuple {</a>
+<a class="sourceLine" id="cb3-99" title="99">  <span class="dt">int</span> x, y, z;</a>
+<a class="sourceLine" id="cb3-100" title="100"></a>
+<a class="sourceLine" id="cb3-101" title="101">  <span class="kw">inline</span> <span class="dt">bool</span> <span class="kw">operator</span> &lt; (<span class="at">const</span> my_tuple &amp;b) <span class="at">const</span> {</a>
+<a class="sourceLine" id="cb3-102" title="102">    <span class="cf">if</span> (x != b.x)</a>
+<a class="sourceLine" id="cb3-103" title="103">      <span class="cf">return</span> x &lt; b.x;</a>
+<a class="sourceLine" id="cb3-104" title="104">    <span class="cf">if</span> (y != b.y)</a>
+<a class="sourceLine" id="cb3-105" title="105">      <span class="cf">return</span> y &lt; b.y;</a>
+<a class="sourceLine" id="cb3-106" title="106">    <span class="cf">return</span> z &lt; b.z;</a>
+<a class="sourceLine" id="cb3-107" title="107">  }</a>
+<a class="sourceLine" id="cb3-108" title="108"></a>
+<a class="sourceLine" id="cb3-109" title="109">  <span class="kw">inline</span> <span class="dt">int</span> <span class="kw">operator</span>[](<span class="at">const</span> <span class="dt">int</span> b) {</a>
+<a class="sourceLine" id="cb3-110" title="110">    <span class="cf">if</span> (b == <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb3-111" title="111">      <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb3-112" title="112">    <span class="cf">if</span> (b == <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb3-113" title="113">      <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb3-114" title="114">    <span class="cf">if</span> (b == <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb3-115" title="115">      <span class="cf">return</span> z;</a>
+<a class="sourceLine" id="cb3-116" title="116">  }</a>
+<a class="sourceLine" id="cb3-117" title="117"></a>
+<a class="sourceLine" id="cb3-118" title="118">  <span class="kw">inline</span> <span class="dt">bool</span> <span class="kw">operator</span> == (<span class="at">const</span> my_tuple &amp;b) { </a>
+<a class="sourceLine" id="cb3-119" title="119">    <span class="cf">return</span> x == b.x &amp;&amp; y == b.y &amp;&amp; z == b.z; </a>
+<a class="sourceLine" id="cb3-120" title="120">  }</a>
+<a class="sourceLine" id="cb3-121" title="121"></a>
+<a class="sourceLine" id="cb3-122" title="122">  <span class="kw">inline</span> <span class="dt">bool</span> <span class="kw">operator</span> != (<span class="at">const</span> my_tuple &amp;b) { </a>
+<a class="sourceLine" id="cb3-123" title="123">    <span class="cf">return</span> x != b.x || y != b.y || z != b.z; </a>
+<a class="sourceLine" id="cb3-124" title="124">  }</a>
+<a class="sourceLine" id="cb3-125" title="125">};</a>
+<a class="sourceLine" id="cb3-126" title="126"></a>
+<a class="sourceLine" id="cb3-127" title="127"><span class="kw">struct</span> my_pair {</a>
+<a class="sourceLine" id="cb3-128" title="128">  <span class="dt">int</span> x, y;</a>
+<a class="sourceLine" id="cb3-129" title="129"></a>
+<a class="sourceLine" id="cb3-130" title="130">  <span class="kw">inline</span> <span class="dt">int</span> &amp;<span class="kw">operator</span>[](<span class="at">const</span> <span class="dt">int</span> b) { <span class="cf">return</span> b == <span class="dv">0</span> ? x : y; }</a>
+<a class="sourceLine" id="cb3-131" title="131">};</a>
+<a class="sourceLine" id="cb3-132" title="132"></a>
+<a class="sourceLine" id="cb3-133" title="133"><span class="kw">namespace</span> SAIS {</a>
+<a class="sourceLine" id="cb3-134" title="134">  <span class="pp">#define alloc</span>(x,<span class="pp"> </span>type,<span class="pp"> </span>len)<span class="pp"> </span>type<span class="pp"> </span>*x<span class="pp"> </span>=<span class="pp"> </span><span class="kw">new</span><span class="pp"> </span>type[len];</a>
+<a class="sourceLine" id="cb3-135" title="135"></a>
+<a class="sourceLine" id="cb3-136" title="136">  <span class="dt">void</span> induced_sort(<span class="dt">int</span> n, <span class="dt">int</span> m, <span class="dt">int</span> *s, <span class="dt">bool</span> *T, <span class="dt">int</span> *sa, <span class="dt">int</span> *cnt) {</a>
+<a class="sourceLine" id="cb3-137" title="137">    <span class="at">static</span> <span class="dt">int</span> lptr[N], rptr[N];</a>
+<a class="sourceLine" id="cb3-138" title="138">    <span class="dt">int</span> tmp;</a>
+<a class="sourceLine" id="cb3-139" title="139">    lptr[<span class="dv">0</span>] = rptr[<span class="dv">0</span>] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-140" title="140">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= m; ++i) lptr[i] = cnt[i - <span class="dv">1</span>], rptr[i] = cnt[i] - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-141" title="141">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt;= n; ++i) sa[i] &gt; <span class="dv">0</span> &amp;&amp; !T[tmp = sa[i] - <span class="dv">1</span>] ? sa[lptr[s[tmp]]++] = tmp : <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-142" title="142">    <span class="cf">for</span> (<span class="dt">int</span> i = n; i &gt;= <span class="dv">0</span>; --i) sa[i] &gt; <span class="dv">0</span> &amp;&amp;  T[tmp = sa[i] - <span class="dv">1</span>] ? sa[rptr[s[tmp]]--] = tmp : <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-143" title="143">  }</a>
+<a class="sourceLine" id="cb3-144" title="144"></a>
+<a class="sourceLine" id="cb3-145" title="145">  <span class="dt">bool</span> compare(<span class="dt">int</span> *x, <span class="dt">int</span> *y, <span class="dt">int</span> n) {</a>
+<a class="sourceLine" id="cb3-146" title="146">    <span class="cf">while</span> (n--) <span class="cf">if</span> (*x++ != *y++) <span class="cf">return</span> <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-147" title="147">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-148" title="148">  }</a>
+<a class="sourceLine" id="cb3-149" title="149"></a>
+<a class="sourceLine" id="cb3-150" title="150">  <span class="dt">void</span> sais(<span class="dt">int</span> n, <span class="dt">int</span> m, <span class="dt">int</span> *s, <span class="dt">int</span> *sa) {</a>
+<a class="sourceLine" id="cb3-151" title="151">    --n;</a>
+<a class="sourceLine" id="cb3-152" title="152">    alloc(T, <span class="dt">bool</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-153" title="153">    alloc(cnt, <span class="dt">int</span>, m + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-154" title="154">    alloc(lms, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-155" title="155">    alloc(tmp, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-156" title="156">    <span class="cf">for</span> (<span class="dt">int</span> i = n; i &gt;= <span class="dv">0</span>; --i) {</a>
+<a class="sourceLine" id="cb3-157" title="157">      T[i] = (i == n || s[i] &lt; s[i + <span class="dv">1</span>] || s[i] == s[i + <span class="dv">1</span>] &amp;&amp; T[i + <span class="dv">1</span>]);</a>
+<a class="sourceLine" id="cb3-158" title="158">      ++cnt[s[i]];</a>
+<a class="sourceLine" id="cb3-159" title="159">    }</a>
+<a class="sourceLine" id="cb3-160" title="160">    tmp[<span class="dv">0</span>] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-161" title="161">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= m; ++i) cnt[i] += cnt[i - <span class="dv">1</span>], tmp[i] = cnt[i] - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-162" title="162">    <span class="dt">int</span> LMS = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-163" title="163">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= n; ++i) T[i] &amp;&amp; !T[i - <span class="dv">1</span>] ? lms[LMS++] = i : <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-164" title="164">    memset(sa, -<span class="dv">1</span>, (n + <span class="dv">1</span>) &lt;&lt; <span class="dv">2</span>);</a>
+<a class="sourceLine" id="cb3-165" title="165">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; LMS; ++i) sa[tmp[s[lms[i]]]--] = lms[i];</a>
+<a class="sourceLine" id="cb3-166" title="166">    induced_sort(n, m, s, T, sa, cnt);</a>
+<a class="sourceLine" id="cb3-167" title="167">    alloc(len, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-168" title="168">    lms[LMS] = n + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-169" title="169">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; LMS; ++i) len[lms[i]] = lms[i + <span class="dv">1</span>] - lms[i] + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-170" title="170">    alloc(lab, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-171" title="171">    <span class="dt">int</span> m0 = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-172" title="172">    memset(lab, -<span class="dv">1</span>, (n + <span class="dv">1</span>) &lt;&lt; <span class="dv">2</span>);</a>
+<a class="sourceLine" id="cb3-173" title="173">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, p = -<span class="dv">1</span>, q = -<span class="dv">1</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb3-174" title="174">      <span class="cf">if</span> ((q = sa[i]) &gt; <span class="dv">0</span> &amp;&amp; T[q] &amp;&amp; !T[q - <span class="dv">1</span>]) {</a>
+<a class="sourceLine" id="cb3-175" title="175">        <span class="cf">if</span> (p == -<span class="dv">1</span> || len[p] != len[q] || compare(s + p, s + q, len[p])) ++m0;</a>
+<a class="sourceLine" id="cb3-176" title="176">        lab[q] = m0; p = q;</a>
+<a class="sourceLine" id="cb3-177" title="177">      }</a>
+<a class="sourceLine" id="cb3-178" title="178">    lab[n] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-179" title="179">    alloc(s0, <span class="dt">int</span>, LMS + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-180" title="180">    alloc(sa0, <span class="dt">int</span>, LMS + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-181" title="181">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>, p = <span class="dv">0</span>; i &lt;= n; ++i) lab[i] &gt;= <span class="dv">0</span> ? s0[p++] = lab[i] : <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-182" title="182">    <span class="cf">if</span> (m0 + <span class="dv">1</span> == LMS) <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; LMS; ++i) sa0[s0[i]] = i;</a>
+<a class="sourceLine" id="cb3-183" title="183">    <span class="cf">else</span> sais(LMS, m0, s0, sa0);</a>
+<a class="sourceLine" id="cb3-184" title="184">    tmp[<span class="dv">0</span>] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-185" title="185">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= m; ++i) tmp[i] = cnt[i] - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-186" title="186">    memset(sa, -<span class="dv">1</span>, (n + <span class="dv">1</span>) &lt;&lt; <span class="dv">2</span>);</a>
+<a class="sourceLine" id="cb3-187" title="187">    <span class="cf">for</span> (<span class="dt">int</span> i = LMS - <span class="dv">1</span>; i &gt;= <span class="dv">0</span>; --i) sa[tmp[s[lms[sa0[i]]]]--] = lms[sa0[i]];</a>
+<a class="sourceLine" id="cb3-188" title="188">    induced_sort(n, m, s, T, sa, cnt);</a>
+<a class="sourceLine" id="cb3-189" title="189">  }</a>
+<a class="sourceLine" id="cb3-190" title="190">} <span class="co">// namespace SAIS</span></a>
+<a class="sourceLine" id="cb3-191" title="191"></a>
+<a class="sourceLine" id="cb3-192" title="192"><span class="kw">inline</span> <span class="dt">int</span> log2n(<span class="dt">int</span> n) { <span class="cf">return</span> <span class="dv">32</span> - <span class="fu">__builtin_clz</span>(n - <span class="dv">1</span>); }</a>
+<a class="sourceLine" id="cb3-193" title="193"></a>
+<a class="sourceLine" id="cb3-194" title="194"><span class="kw">namespace</span> RMQ_table {</a>
+<a class="sourceLine" id="cb3-195" title="195">  <span class="at">const</span> <span class="dt">int</span> N = <span class="fl">2e6</span> + <span class="dv">20</span>;</a>
+<a class="sourceLine" id="cb3-196" title="196">  <span class="at">const</span> <span class="dt">int</span> D_max = <span class="dv">21</span>;</a>
+<a class="sourceLine" id="cb3-197" title="197">  <span class="at">const</span> <span class="dt">int</span> L = <span class="dv">20</span>;</a>
+<a class="sourceLine" id="cb3-198" title="198">  <span class="at">const</span> <span class="dt">int</span> inf = <span class="dv">1</span> &lt;&lt; <span class="dv">30</span>;</a>
+<a class="sourceLine" id="cb3-199" title="199"></a>
+<a class="sourceLine" id="cb3-200" title="200">  <span class="dt">int</span> stack[L + <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb3-201" title="201"></a>
+<a class="sourceLine" id="cb3-202" title="202">  <span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="dt">int</span> MAXN&gt;</a>
+<a class="sourceLine" id="cb3-203" title="203">  <span class="kw">class</span> ST {</a>
+<a class="sourceLine" id="cb3-204" title="204">   <span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb3-205" title="205">    <span class="dt">int</span> f[N / L][D_max], M[N / L], a[N + L], n, q, D;</a>
+<a class="sourceLine" id="cb3-206" title="206"></a>
+<a class="sourceLine" id="cb3-207" title="207">    <span class="kw">struct</span> node {</a>
+<a class="sourceLine" id="cb3-208" title="208">      <span class="dt">int</span> state[L + <span class="dv">1</span>], *a;</a>
+<a class="sourceLine" id="cb3-209" title="209"></a>
+<a class="sourceLine" id="cb3-210" title="210">      <span class="dt">int</span> Qmin(<span class="dt">int</span> x, <span class="dt">int</span> y) { <span class="cf">return</span> a[x + <span class="fu">__builtin_ctz</span>(state[y] &gt;&gt; x)]; }</a>
+<a class="sourceLine" id="cb3-211" title="211"></a>
+<a class="sourceLine" id="cb3-212" title="212">      <span class="dt">void</span> init(<span class="dt">int</span> *_a) {</a>
+<a class="sourceLine" id="cb3-213" title="213">        <span class="dt">int</span> top = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-214" title="214">        a = _a;</a>
+<a class="sourceLine" id="cb3-215" title="215">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= L; ++i) {</a>
+<a class="sourceLine" id="cb3-216" title="216">          state[i] = state[i - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb3-217" title="217">          <span class="cf">while</span> (top &amp;&amp; a[i] &lt;= a[stack[top]])</a>
+<a class="sourceLine" id="cb3-218" title="218">            state[i] -= <span class="dv">1</span> &lt;&lt; stack[top], --top;</a>
+<a class="sourceLine" id="cb3-219" title="219">          stack[++top] = i;</a>
+<a class="sourceLine" id="cb3-220" title="220">          state[i] += <span class="dv">1</span> &lt;&lt; i;</a>
+<a class="sourceLine" id="cb3-221" title="221">        }</a>
+<a class="sourceLine" id="cb3-222" title="222">      }</a>
+<a class="sourceLine" id="cb3-223" title="223">    } c[N / L];</a>
+<a class="sourceLine" id="cb3-224" title="224"></a>
+<a class="sourceLine" id="cb3-225" title="225">   <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb3-226" title="226">    <span class="dt">void</span> build(<span class="dt">int</span> _n, <span class="dt">int</span> *_a) {</a>
+<a class="sourceLine" id="cb3-227" title="227">      n = _n;</a>
+<a class="sourceLine" id="cb3-228" title="228">      <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= _n; ++i) a[i] = _a[i];</a>
+<a class="sourceLine" id="cb3-229" title="229">      D = <span class="dt">int</span>(log2(n)) + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-230" title="230">      <span class="dt">int</span> nn = n / L;</a>
+<a class="sourceLine" id="cb3-231" title="231">      M[<span class="dv">0</span>] = -<span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-232" title="232">      <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= nn; ++i) {</a>
+<a class="sourceLine" id="cb3-233" title="233">        f[i][<span class="dv">0</span>] = inf;</a>
+<a class="sourceLine" id="cb3-234" title="234">        <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">1</span>; j &lt;= L; ++j)</a>
+<a class="sourceLine" id="cb3-235" title="235">          f[i][<span class="dv">0</span>] = min(f[i][<span class="dv">0</span>], a[(i - <span class="dv">1</span>) * L + j]);</a>
+<a class="sourceLine" id="cb3-236" title="236">      }</a>
+<a class="sourceLine" id="cb3-237" title="237">      <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= nn; ++i)</a>
+<a class="sourceLine" id="cb3-238" title="238">        M[i] = !(i &amp; (i - <span class="dv">1</span>)) ? M[i - <span class="dv">1</span>] + <span class="dv">1</span> : M[i - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb3-239" title="239">      <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">1</span>; j &lt;= D; ++j)</a>
+<a class="sourceLine" id="cb3-240" title="240">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= nn - (<span class="dv">1</span> &lt;&lt; j) + <span class="dv">1</span>; ++i)</a>
+<a class="sourceLine" id="cb3-241" title="241">          f[i][j] = min(f[i][j - <span class="dv">1</span>], f[i + (<span class="dv">1</span> &lt;&lt; (j - <span class="dv">1</span>))][j - <span class="dv">1</span>]);</a>
+<a class="sourceLine" id="cb3-242" title="242">      <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= nn + <span class="dv">1</span>; ++i)</a>
+<a class="sourceLine" id="cb3-243" title="243">        c[i].init(a + (i - <span class="dv">1</span>) * L);</a>
+<a class="sourceLine" id="cb3-244" title="244">    }</a>
+<a class="sourceLine" id="cb3-245" title="245"></a>
+<a class="sourceLine" id="cb3-246" title="246">    <span class="kw">inline</span> <span class="dt">int</span> Qmin_ST(<span class="dt">int</span> x, <span class="dt">int</span> y) {</a>
+<a class="sourceLine" id="cb3-247" title="247">      <span class="dt">int</span> z = M[y - x + <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb3-248" title="248">      <span class="cf">return</span> min(f[x][z], f[y - (<span class="dv">1</span> &lt;&lt; z) + <span class="dv">1</span>][z]);</a>
+<a class="sourceLine" id="cb3-249" title="249">    }</a>
+<a class="sourceLine" id="cb3-250" title="250"></a>
+<a class="sourceLine" id="cb3-251" title="251">    <span class="kw">inline</span> <span class="dt">int</span> rmq(<span class="dt">int</span> x, <span class="dt">int</span> y) {</a>
+<a class="sourceLine" id="cb3-252" title="252">      ++x, ++y;</a>
+<a class="sourceLine" id="cb3-253" title="253">      <span class="dt">int</span> xx = (x - <span class="dv">1</span>) / L + <span class="dv">1</span>, yy = (y - <span class="dv">1</span>) / L + <span class="dv">1</span>, res;</a>
+<a class="sourceLine" id="cb3-254" title="254">      <span class="cf">if</span> (xx + <span class="dv">1</span> &lt;= yy - <span class="dv">1</span>)res = Qmin_ST(xx + <span class="dv">1</span>, yy - <span class="dv">1</span>); <span class="cf">else</span> res = inf;</a>
+<a class="sourceLine" id="cb3-255" title="255">      <span class="cf">if</span> (xx == yy)res = min(res, c[xx].Qmin(x - (xx - <span class="dv">1</span>) * L, y - (yy - <span class="dv">1</span>) * L));</a>
+<a class="sourceLine" id="cb3-256" title="256">      <span class="cf">else</span> res = min(res, c[xx].Qmin(x - (xx - <span class="dv">1</span>) * L, L)), res = min(res, c[yy].Qmin(<span class="dv">1</span>, y - (yy - <span class="dv">1</span>) * L));</a>
+<a class="sourceLine" id="cb3-257" title="257">      <span class="cf">return</span> res;</a>
+<a class="sourceLine" id="cb3-258" title="258">    }</a>
+<a class="sourceLine" id="cb3-259" title="259">  };</a>
+<a class="sourceLine" id="cb3-260" title="260">} <span class="co">// namespace RMQ_table</span></a>
+<a class="sourceLine" id="cb3-261" title="261"></a>
+<a class="sourceLine" id="cb3-262" title="262"><span class="kw">using</span> RMQ_table::ST;</a>
+<a class="sourceLine" id="cb3-263" title="263"></a>
+<a class="sourceLine" id="cb3-264" title="264"><span class="kw">template</span> &lt;<span class="dt">int</span> N, <span class="kw">template</span> &lt;<span class="kw">typename</span>, <span class="dt">int</span>&gt; <span class="kw">class</span> RMQ_T&gt;</a>
+<a class="sourceLine" id="cb3-265" title="265"><span class="kw">class</span> SA {</a>
+<a class="sourceLine" id="cb3-266" title="266"> <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb3-267" title="267">  RMQ_T&lt;<span class="dt">int</span>, N - <span class="dv">1</span>&gt; rmq;</a>
+<a class="sourceLine" id="cb3-268" title="268">  <span class="dt">int</span> n, sa[N], rk[N], height[N];</a>
+<a class="sourceLine" id="cb3-269" title="269"></a>
+<a class="sourceLine" id="cb3-270" title="270">  <span class="dt">void</span> build(<span class="dt">int</span> _n, <span class="dt">char</span> *str) {</a>
+<a class="sourceLine" id="cb3-271" title="271">    n = _n;</a>
+<a class="sourceLine" id="cb3-272" title="272">    alloc(s, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-273" title="273">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) s[i] = str[i];</a>
+<a class="sourceLine" id="cb3-274" title="274">    SAIS::sais(n + <span class="dv">1</span>, <span class="dv">26</span>, s, sa);</a>
+<a class="sourceLine" id="cb3-275" title="275">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= n; ++i) rk[sa[i]] = i;</a>
+<a class="sourceLine" id="cb3-276" title="276">    <span class="cf">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>, i = <span class="dv">0</span>, j; i &lt; n; height[rk[i++]] = k)</a>
+<a class="sourceLine" id="cb3-277" title="277">    <span class="cf">for</span> (k ? k-- : <span class="dv">0</span>, j = sa[rk[i] - <span class="dv">1</span>]; s[i + k] == s[j + k]; ++k);</a>
+<a class="sourceLine" id="cb3-278" title="278">    rmq.build(n, height);</a>
+<a class="sourceLine" id="cb3-279" title="279">  }</a>
+<a class="sourceLine" id="cb3-280" title="280"></a>
+<a class="sourceLine" id="cb3-281" title="281">  <span class="dt">int</span> lcp(<span class="dt">int</span> i, <span class="dt">int</span> j) {</a>
+<a class="sourceLine" id="cb3-282" title="282">    <span class="co">//printf(&quot;lcp(%d,%d)\n&quot;, i, j);</span></a>
+<a class="sourceLine" id="cb3-283" title="283">    <span class="cf">if</span> (i == j) <span class="cf">return</span> n - i;</a>
+<a class="sourceLine" id="cb3-284" title="284">    <span class="cf">if</span> (j == n) <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-285" title="285">    i = rk[i], j = rk[j];</a>
+<a class="sourceLine" id="cb3-286" title="286">    <span class="cf">if</span> (i &gt; j) <span class="bu">std::</span>swap(i, j); </a>
+<a class="sourceLine" id="cb3-287" title="287">    <span class="cf">return</span> rmq.rmq(i, j - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb3-288" title="288">  }</a>
+<a class="sourceLine" id="cb3-289" title="289">};</a>
+<a class="sourceLine" id="cb3-290" title="290"></a>
+<a class="sourceLine" id="cb3-291" title="291"><span class="kw">template</span> &lt;<span class="dt">int</span> N, <span class="kw">template</span> &lt;<span class="kw">typename</span>, <span class="dt">int</span>&gt; <span class="kw">class</span> RMQ_T&gt;</a>
+<a class="sourceLine" id="cb3-292" title="292"><span class="kw">class</span> ISA {</a>
+<a class="sourceLine" id="cb3-293" title="293"> <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb3-294" title="294">  RMQ_T&lt;<span class="dt">int</span>, N - <span class="dv">1</span>&gt; rmq;</a>
+<a class="sourceLine" id="cb3-295" title="295">  <span class="dt">int</span> n, sa[N], rk[N], height[N];</a>
+<a class="sourceLine" id="cb3-296" title="296"></a>
+<a class="sourceLine" id="cb3-297" title="297">  <span class="dt">void</span> build(<span class="dt">int</span> _n, <span class="dt">char</span> *str) {</a>
+<a class="sourceLine" id="cb3-298" title="298">    n = _n;</a>
+<a class="sourceLine" id="cb3-299" title="299">    alloc(s, <span class="dt">int</span>, n + <span class="dv">10</span>);</a>
+<a class="sourceLine" id="cb3-300" title="300">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) s[i] = str[n - i - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb3-301" title="301">    SAIS::sais(n + <span class="dv">1</span>, <span class="dv">26</span>, s, sa);</a>
+<a class="sourceLine" id="cb3-302" title="302">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt;= n; ++i) rk[sa[i]] = i;</a>
+<a class="sourceLine" id="cb3-303" title="303">    <span class="cf">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>, i = <span class="dv">0</span>, j; i &lt; n; height[rk[i++]] = k)</a>
+<a class="sourceLine" id="cb3-304" title="304">    <span class="cf">for</span> (k ? k-- : <span class="dv">0</span>, j = sa[rk[i] - <span class="dv">1</span>]; s[i + k] == s[j + k]; ++k);</a>
+<a class="sourceLine" id="cb3-305" title="305">    rmq.build(n, height);</a>
+<a class="sourceLine" id="cb3-306" title="306">    <span class="co">//for (int i = 2; i &lt;= n + 1; ++i) printf(&quot;%d &quot;, height[i]); printf(&quot;\n&quot;);</span></a>
+<a class="sourceLine" id="cb3-307" title="307">    <span class="co">//for (int i = 0; i &lt; n; ++i) printf(&quot;%d &quot;, rk[i]); printf(&quot;\n&quot;);</span></a>
+<a class="sourceLine" id="cb3-308" title="308">  }</a>
+<a class="sourceLine" id="cb3-309" title="309"></a>
+<a class="sourceLine" id="cb3-310" title="310">  <span class="dt">int</span> lcs(<span class="dt">int</span> i, <span class="dt">int</span> j) {</a>
+<a class="sourceLine" id="cb3-311" title="311">    <span class="co">//++i, ++j;</span></a>
+<a class="sourceLine" id="cb3-312" title="312">    <span class="cf">if</span> (i &lt;= <span class="dv">0</span> || j &lt;= <span class="dv">0</span>) <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-313" title="313">    <span class="cf">if</span> (i == j) <span class="cf">return</span> i;</a>
+<a class="sourceLine" id="cb3-314" title="314">    i = rk[n - i], j = rk[n - j];</a>
+<a class="sourceLine" id="cb3-315" title="315">    <span class="cf">if</span> (i &gt; j) <span class="bu">std::</span>swap(i, j);</a>
+<a class="sourceLine" id="cb3-316" title="316">    <span class="co">//printf(&quot;rmq(%d,%d)&quot;, i, j);</span></a>
+<a class="sourceLine" id="cb3-317" title="317">    <span class="cf">return</span> rmq.rmq(i, j - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb3-318" title="318">  }</a>
+<a class="sourceLine" id="cb3-319" title="319">};</a>
+<a class="sourceLine" id="cb3-320" title="320"></a>
+<a class="sourceLine" id="cb3-321" title="321"><span class="dt">int</span> n, nsv[N], nbv[N];</a>
+<a class="sourceLine" id="cb3-322" title="322"><span class="dt">char</span> s[N];</a>
+<a class="sourceLine" id="cb3-323" title="323">SA&lt;N, ST&gt; sa;</a>
+<a class="sourceLine" id="cb3-324" title="324">ISA&lt;N, ST&gt; isa;</a>
+<a class="sourceLine" id="cb3-325" title="325"><span class="bu">std::</span>vector&lt;my_tuple&gt; runs;</a>
+<a class="sourceLine" id="cb3-326" title="326"></a>
+<a class="sourceLine" id="cb3-327" title="327"><span class="dt">int</span> get_lcs(<span class="dt">int</span> i, <span class="dt">int</span> j) {</a>
+<a class="sourceLine" id="cb3-328" title="328">  <span class="dt">int</span> low = <span class="dv">0</span>, high = min(i, j);</a>
+<a class="sourceLine" id="cb3-329" title="329">  <span class="cf">while</span> (low &lt; high) {</a>
+<a class="sourceLine" id="cb3-330" title="330">    <span class="dt">int</span> middle = low + high + <span class="dv">1</span> &gt;&gt; <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-331" title="331">    <span class="cf">if</span> (sa.lcp(i - middle, j - middle) &gt;= middle)</a>
+<a class="sourceLine" id="cb3-332" title="332">      low = middle;</a>
+<a class="sourceLine" id="cb3-333" title="333">    <span class="cf">else</span></a>
+<a class="sourceLine" id="cb3-334" title="334">      high = middle - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-335" title="335">  }</a>
+<a class="sourceLine" id="cb3-336" title="336">  <span class="co">//printf(&quot;lcs(%d,%d) : %d %d\n&quot;, i, j, isa.lcs(i, j), low);</span></a>
+<a class="sourceLine" id="cb3-337" title="337">  <span class="cf">return</span> low;</a>
+<a class="sourceLine" id="cb3-338" title="338">}</a>
+<a class="sourceLine" id="cb3-339" title="339"></a>
+<a class="sourceLine" id="cb3-340" title="340"><span class="dt">void</span> add_run(<span class="dt">int</span> i, <span class="dt">int</span> j) {</a>
+<a class="sourceLine" id="cb3-341" title="341">  <span class="dt">int</span> length = j - i;</a>
+<a class="sourceLine" id="cb3-342" title="342">  <span class="dt">int</span> lcs = isa.lcs(i, j);</a>
+<a class="sourceLine" id="cb3-343" title="343">  <span class="cf">if</span> (lcs &lt; length) {</a>
+<a class="sourceLine" id="cb3-344" title="344">    <span class="dt">int</span> lcp = sa.lcp(i, j);</a>
+<a class="sourceLine" id="cb3-345" title="345">    <span class="cf">if</span> (lcs + lcp &gt;= length) runs.push_back((my_tuple){i - lcs + <span class="dv">1</span>, j + lcp, length});</a>
+<a class="sourceLine" id="cb3-346" title="346">  }</a>
+<a class="sourceLine" id="cb3-347" title="347">}</a>
+<a class="sourceLine" id="cb3-348" title="348"></a>
+<a class="sourceLine" id="cb3-349" title="349"><span class="bu">std::</span>vector&lt;<span class="dt">int</span>&gt; a[N], a2[N], a3[N];</a>
+<a class="sourceLine" id="cb3-350" title="350"><span class="dt">int</span> b[N], c[N];</a>
+<a class="sourceLine" id="cb3-351" title="351"></a>
+<a class="sourceLine" id="cb3-352" title="352"><span class="dt">void</span> my_sort_and_unique() {</a>
+<a class="sourceLine" id="cb3-353" title="353">  <span class="dt">int</span> m = runs.size();</a>
+<a class="sourceLine" id="cb3-354" title="354">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; m; ++i) a[runs[i].z].push_back(i);</a>
+<a class="sourceLine" id="cb3-355" title="355">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, tmp = <span class="dv">0</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb3-356" title="356">    <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; a[i].size(); ++j) b[tmp++] = a[i][j];</a>
+<a class="sourceLine" id="cb3-357" title="357">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; m; ++i) a2[runs[b[i]].y].push_back(b[i]);</a>
+<a class="sourceLine" id="cb3-358" title="358">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, tmp = <span class="dv">0</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb3-359" title="359">    <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; a2[i].size(); ++j) b[tmp++] = a2[i][j];</a>
+<a class="sourceLine" id="cb3-360" title="360">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; m; ++i) a3[runs[b[i]].x].push_back(b[i]);</a>
+<a class="sourceLine" id="cb3-361" title="361">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, tmp = <span class="dv">0</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb3-362" title="362">    <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j &lt; a3[i].size(); ++j) b[tmp++] = a3[i][j];</a>
+<a class="sourceLine" id="cb3-363" title="363">  <span class="dt">int</span> tmp = <span class="dv">0</span>; c[<span class="dv">0</span>] = b[<span class="dv">0</span>];</a>
+<a class="sourceLine" id="cb3-364" title="364">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt; m; ++i)</a>
+<a class="sourceLine" id="cb3-365" title="365">    <span class="cf">if</span> (runs[b[i - <span class="dv">1</span>]] != runs[b[i]]) c[++tmp] = b[i];</a>
+<a class="sourceLine" id="cb3-366" title="366">  io &lt;&lt; tmp + <span class="dv">1</span> &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</a>
+<a class="sourceLine" id="cb3-367" title="367">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt;= tmp; ++i)</a>
+<a class="sourceLine" id="cb3-368" title="368">    io &lt;&lt; runs[c[i]].x &lt;&lt; <span class="ch">&#39; &#39;</span> &lt;&lt; runs[c[i]].y &lt;&lt; <span class="ch">&#39; &#39;</span> &lt;&lt; runs[c[i]].z &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</a>
+<a class="sourceLine" id="cb3-369" title="369">}</a>
+<a class="sourceLine" id="cb3-370" title="370"></a>
+<a class="sourceLine" id="cb3-371" title="371"><span class="dt">int</span> main() {</a>
+<a class="sourceLine" id="cb3-372" title="372">  io &gt;&gt; s; n = strlen(s);</a>
+<a class="sourceLine" id="cb3-373" title="373">  <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) s[i] = s[i] - <span class="ch">&#39;a&#39;</span> + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb3-374" title="374">  sa.build(n, s);</a>
+<a class="sourceLine" id="cb3-375" title="375">  isa.build(n, s);</a>
+<a class="sourceLine" id="cb3-376" title="376">  <span class="cf">for</span> (<span class="dt">int</span> i = n; i--;) {</a>
+<a class="sourceLine" id="cb3-377" title="377">    <span class="cf">for</span> (<span class="dt">int</span> &amp;j = nsv[i] = i + <span class="dv">1</span>; j &lt; n &amp;&amp; sa.rk[i] &lt; sa.rk[j];) j = nsv[j];</a>
+<a class="sourceLine" id="cb3-378" title="378">    <span class="cf">for</span> (<span class="dt">int</span> &amp;j = nbv[i] = i + <span class="dv">1</span>; j &lt; n &amp;&amp; sa.rk[i] &gt; sa.rk[j];) j = nbv[j];</a>
+<a class="sourceLine" id="cb3-379" title="379">    add_run(i, nsv[i]);</a>
+<a class="sourceLine" id="cb3-380" title="380">    <span class="cf">if</span> (nsv[i] != nbv[i]) add_run(i, nbv[i]);</a>
+<a class="sourceLine" id="cb3-381" title="381">  }</a>
+<a class="sourceLine" id="cb3-382" title="382">  <span class="bu">std::</span>sort(runs.begin(), runs.end());</a>
+<a class="sourceLine" id="cb3-383" title="383">  runs.erase(<span class="bu">std::</span>unique(runs.begin(), runs.end()), runs.end());</a>
+<a class="sourceLine" id="cb3-384" title="384">  io &lt;&lt; (<span class="dt">int</span>)runs.size() &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</a>
+<a class="sourceLine" id="cb3-385" title="385">  <span class="cf">for</span> (<span class="kw">auto</span> a : runs) io &lt;&lt; a.x &lt;&lt; <span class="ch">&#39; &#39;</span> &lt;&lt; a.y &lt;&lt; <span class="ch">&#39; &#39;</span> &lt;&lt; a.z &lt;&lt; <span class="ch">&#39;</span><span class="sc">\n</span><span class="ch">&#39;</span>;</a>
+<a class="sourceLine" id="cb3-386" title="386">  <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb3-387" title="387">}</a></code></pre></div>
+</details>
 <h2 id="lyndon-tree">5 Lyndon Tree</h2>
 <h3 id="definition-4">5.1 Definition</h3>
 <p><strong>标准划分</strong>：把一个 Lyndon Word 划分为他的字典序最小的后缀和其余的部分。两部分一定是 Lyndon Word。</p>
@@ -846,7 +1436,284 @@ f_i = \sum _{j&lt;i}f_j \cdot (-1)^{\sigma(j\cdots i) - 1}
 <p>我们认为一个循环串初始的时候的最小周期一定是大于等于长度的一半的（否则会重复的）。 <span class="math display">\[
 f_i = \left[\sum_{j&lt;i}f_j\right] + \sum _{j&lt;i} f_j\left[(-1)^{\sigma(j\cdots i)-1}-1\right]
 \]</span> 然于是我们把 Primitive squares 和 runs 求出来转移就好了。时间复杂度为 <span class="math inline">\(\mathcal O(n \log n)\)</span>。</p>
-<p><a href="https://paste.ubuntu.com/p/9sfQnGZyzn/">Code</a></p>
+<details>
+<p><summary>Code</summary></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb4-1" title="1"></a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="pp">#pragma GCC optimize( 3 )</span></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="pp">#pragma GCC optimize( &quot;Ofast&quot; )</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="pp">#pragma GCC optimize( &quot;unroll-loops&quot; )</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="pp">#include </span><span class="im">&lt;bits/stdc++.h&gt;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="kw">typedef</span> <span class="dt">long</span> <span class="dt">long</span> ll;</a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">long</span> <span class="dt">long</span> ull;</a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="kw">typedef</span> <span class="dt">unsigned</span> <span class="dt">int</span> ui;</a>
+<a class="sourceLine" id="cb4-11" title="11"></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="pp">#define IL </span><span class="kw">inline</span></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="pp">#define CT </span><span class="at">const</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="pp">#define TT </span><span class="kw">template</span><span class="pp"> </span>&lt;<span class="kw">typename</span><span class="pp"> </span>Ty&gt;</a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="pp">#define OP </span><span class="kw">operator</span></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="pp">#define RG </span><span class="at">register</span></a>
+<a class="sourceLine" id="cb4-17" title="17"></a>
+<a class="sourceLine" id="cb4-18" title="18">TT IL Ty max(CT Ty&amp; a, CT Ty&amp; b) { <span class="cf">return</span> a &gt; b ? a : b; }</a>
+<a class="sourceLine" id="cb4-19" title="19">TT IL Ty min(CT Ty&amp; a, CT Ty&amp; b) { <span class="cf">return</span> a &lt; b ? a : b; }</a>
+<a class="sourceLine" id="cb4-20" title="20">TT IL <span class="dt">void</span> cmax(Ty&amp; a, CT Ty&amp; b) { <span class="cf">if</span> (b &gt; a) a = b; }</a>
+<a class="sourceLine" id="cb4-21" title="21">TT IL <span class="dt">void</span> cmin(Ty&amp; a, CT Ty&amp; b) { <span class="cf">if</span> (b &lt; a) a = b; }</a>
+<a class="sourceLine" id="cb4-22" title="22"></a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="at">const</span> <span class="dt">int</span> N = <span class="fl">2e5</span> + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-24" title="24"><span class="at">const</span> <span class="dt">int</span> Sigma = <span class="dv">26</span>;</a>
+<a class="sourceLine" id="cb4-25" title="25"><span class="at">const</span> <span class="dt">int</span> mod = <span class="dv">998244353</span>;</a>
+<a class="sourceLine" id="cb4-26" title="26"><span class="at">const</span> <span class="dt">int</span> L = <span class="dv">20</span>;</a>
+<a class="sourceLine" id="cb4-27" title="27"></a>
+<a class="sourceLine" id="cb4-28" title="28"><span class="kw">struct</span> prec0 </a>
+<a class="sourceLine" id="cb4-29" title="29">{ </a>
+<a class="sourceLine" id="cb4-30" title="30">    <span class="at">const</span> <span class="dt">char</span> *s; </a>
+<a class="sourceLine" id="cb4-31" title="31">    prec0(<span class="at">const</span> <span class="dt">char</span>* st) { s = st; }</a>
+<a class="sourceLine" id="cb4-32" title="32">    IL <span class="dt">int</span> OP [](<span class="at">const</span> <span class="dt">int</span> b) <span class="at">const</span> { <span class="cf">return</span> s[b] - <span class="ch">&#39;a&#39;</span>; }</a>
+<a class="sourceLine" id="cb4-33" title="33">};</a>
+<a class="sourceLine" id="cb4-34" title="34"></a>
+<a class="sourceLine" id="cb4-35" title="35"><span class="kw">struct</span> prec1 </a>
+<a class="sourceLine" id="cb4-36" title="36">{ </a>
+<a class="sourceLine" id="cb4-37" title="37">    <span class="at">const</span> <span class="dt">char</span> *s; </a>
+<a class="sourceLine" id="cb4-38" title="38">    prec1(<span class="at">const</span> <span class="dt">char</span>* st) { s = st; }</a>
+<a class="sourceLine" id="cb4-39" title="39">    IL <span class="dt">int</span> OP [](<span class="at">const</span> <span class="dt">int</span> b) <span class="at">const</span> { <span class="cf">return</span> <span class="ch">&#39;z&#39;</span> - s[b]; }</a>
+<a class="sourceLine" id="cb4-40" title="40">};</a>
+<a class="sourceLine" id="cb4-41" title="41"></a>
+<a class="sourceLine" id="cb4-42" title="42"><span class="kw">struct</span> my_tuple</a>
+<a class="sourceLine" id="cb4-43" title="43">{</a>
+<a class="sourceLine" id="cb4-44" title="44">    <span class="dt">int</span> x, y, z;</a>
+<a class="sourceLine" id="cb4-45" title="45">    </a>
+<a class="sourceLine" id="cb4-46" title="46">    IL <span class="dt">bool</span> OP &lt;(<span class="at">const</span> my_tuple&amp; b) <span class="at">const</span></a>
+<a class="sourceLine" id="cb4-47" title="47">    {</a>
+<a class="sourceLine" id="cb4-48" title="48">        <span class="cf">if</span> (x != b.x) <span class="cf">return</span> x &lt; b.x;</a>
+<a class="sourceLine" id="cb4-49" title="49">        <span class="cf">if</span> (y != b.y) <span class="cf">return</span> y &lt; b.y;</a>
+<a class="sourceLine" id="cb4-50" title="50">        <span class="cf">return</span> z &lt; b.z;</a>
+<a class="sourceLine" id="cb4-51" title="51">    }</a>
+<a class="sourceLine" id="cb4-52" title="52">    </a>
+<a class="sourceLine" id="cb4-53" title="53">    IL <span class="dt">int</span> OP [](<span class="at">const</span> <span class="dt">int</span> b) </a>
+<a class="sourceLine" id="cb4-54" title="54">    {</a>
+<a class="sourceLine" id="cb4-55" title="55">        <span class="cf">if</span> (b == <span class="dv">0</span>) <span class="cf">return</span> x;</a>
+<a class="sourceLine" id="cb4-56" title="56">        <span class="cf">if</span> (b == <span class="dv">1</span>) <span class="cf">return</span> y;</a>
+<a class="sourceLine" id="cb4-57" title="57">        <span class="cf">if</span> (b == <span class="dv">2</span>) <span class="cf">return</span> z;</a>
+<a class="sourceLine" id="cb4-58" title="58">    }</a>
+<a class="sourceLine" id="cb4-59" title="59">    </a>
+<a class="sourceLine" id="cb4-60" title="60">    IL <span class="dt">bool</span> OP ==(<span class="at">const</span> my_tuple &amp;b) </a>
+<a class="sourceLine" id="cb4-61" title="61">    { </a>
+<a class="sourceLine" id="cb4-62" title="62">        <span class="cf">return</span> x == b.x &amp;&amp; y == b.y &amp;&amp; z == b.z; </a>
+<a class="sourceLine" id="cb4-63" title="63">    }</a>
+<a class="sourceLine" id="cb4-64" title="64">};</a>
+<a class="sourceLine" id="cb4-65" title="65"></a>
+<a class="sourceLine" id="cb4-66" title="66"><span class="kw">struct</span> my_pair</a>
+<a class="sourceLine" id="cb4-67" title="67">{</a>
+<a class="sourceLine" id="cb4-68" title="68">    <span class="dt">int</span> x, y;</a>
+<a class="sourceLine" id="cb4-69" title="69">    </a>
+<a class="sourceLine" id="cb4-70" title="70">    IL <span class="dt">int</span> &amp;OP [](<span class="at">const</span> <span class="dt">int</span> b)</a>
+<a class="sourceLine" id="cb4-71" title="71">    {</a>
+<a class="sourceLine" id="cb4-72" title="72">        <span class="cf">return</span> b == <span class="dv">0</span> ? x : y;</a>
+<a class="sourceLine" id="cb4-73" title="73">    }</a>
+<a class="sourceLine" id="cb4-74" title="74">};</a>
+<a class="sourceLine" id="cb4-75" title="75"></a>
+<a class="sourceLine" id="cb4-76" title="76"><span class="kw">struct</span> ID_order</a>
+<a class="sourceLine" id="cb4-77" title="77">{ </a>
+<a class="sourceLine" id="cb4-78" title="78">    IL <span class="dt">int</span> OP [] (<span class="at">const</span> <span class="dt">int</span> b) <span class="at">const</span> { <span class="cf">return</span> b; }</a>
+<a class="sourceLine" id="cb4-79" title="79">} ID;</a>
+<a class="sourceLine" id="cb4-80" title="80"></a>
+<a class="sourceLine" id="cb4-81" title="81"><span class="kw">struct</span> T_order</a>
+<a class="sourceLine" id="cb4-82" title="82">{</a>
+<a class="sourceLine" id="cb4-83" title="83">    <span class="dt">int</span> *s;</a>
+<a class="sourceLine" id="cb4-84" title="84">    T_order(<span class="dt">int</span>* st) { s = st; }</a>
+<a class="sourceLine" id="cb4-85" title="85">    IL <span class="dt">int</span> OP [] (<span class="at">const</span> <span class="dt">int</span> b) <span class="at">const</span> { <span class="cf">return</span> s[b]; }</a>
+<a class="sourceLine" id="cb4-86" title="86">};</a>
+<a class="sourceLine" id="cb4-87" title="87"></a>
+<a class="sourceLine" id="cb4-88" title="88"><span class="kw">struct</span> T_rk</a>
+<a class="sourceLine" id="cb4-89" title="89">{</a>
+<a class="sourceLine" id="cb4-90" title="90">    <span class="dt">int</span> n, delta, *rk;</a>
+<a class="sourceLine" id="cb4-91" title="91">    T_rk(<span class="dt">int</span> nn, <span class="dt">int</span> dd, <span class="dt">int</span>* rr) { n = nn, delta = dd, rk = rr; }</a>
+<a class="sourceLine" id="cb4-92" title="92">    IL <span class="dt">int</span> OP [] (<span class="at">const</span> <span class="dt">int</span> i) <span class="at">const</span> { <span class="cf">return</span> i + delta &lt; n ? rk[i + delta] + <span class="dv">1</span> : <span class="dv">0</span>; }</a>
+<a class="sourceLine" id="cb4-93" title="93">};</a>
+<a class="sourceLine" id="cb4-94" title="94"></a>
+<a class="sourceLine" id="cb4-95" title="95"><span class="kw">template</span> &lt;<span class="kw">typename</span> prec&gt;</a>
+<a class="sourceLine" id="cb4-96" title="96"><span class="kw">class</span> SA</a>
+<a class="sourceLine" id="cb4-97" title="97">{</a>
+<a class="sourceLine" id="cb4-98" title="98">  <span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb4-99" title="99">    <span class="dt">int</span> count[N], tsa[N], trk[N];</a>
+<a class="sourceLine" id="cb4-100" title="100"></a>
+<a class="sourceLine" id="cb4-101" title="101">    <span class="kw">template</span> &lt;<span class="kw">typename</span> Ty, <span class="kw">typename</span> rk&gt;</a>
+<a class="sourceLine" id="cb4-102" title="102">    <span class="dt">void</span> sort(<span class="dt">int</span> range, <span class="at">const</span> Ty &amp;o, <span class="at">const</span> rk &amp;r, <span class="dt">int</span> *ans)</a>
+<a class="sourceLine" id="cb4-103" title="103">    {</a>
+<a class="sourceLine" id="cb4-104" title="104">        memset(count, <span class="dv">0</span>, <span class="kw">sizeof</span>(*count) * range);</a>
+<a class="sourceLine" id="cb4-105" title="105">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i) ++count[r[i]];</a>
+<a class="sourceLine" id="cb4-106" title="106">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt; range; ++i) count[i] += count[i - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb4-107" title="107">        <span class="cf">for</span> (<span class="dt">int</span> i = n; i--; ) ans[--count[r[o[i]]]] = o[i];</a>
+<a class="sourceLine" id="cb4-108" title="108">    }</a>
+<a class="sourceLine" id="cb4-109" title="109"></a>
+<a class="sourceLine" id="cb4-110" title="110">    <span class="kw">template</span> &lt;<span class="kw">typename</span> rk0, <span class="kw">typename</span> rk1&gt;</a>
+<a class="sourceLine" id="cb4-111" title="111">    <span class="dt">int</span> rank(<span class="at">const</span> rk0 &amp;r0, <span class="at">const</span> rk1 &amp;r1)</a>
+<a class="sourceLine" id="cb4-112" title="112">    {</a>
+<a class="sourceLine" id="cb4-113" title="113">        rk[sa[<span class="dv">0</span>]] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-114" title="114">        <span class="cf">for</span> (<span class="dt">int</span> ii = <span class="dv">1</span>; ii &lt; n; ++ii) </a>
+<a class="sourceLine" id="cb4-115" title="115">        {</a>
+<a class="sourceLine" id="cb4-116" title="116">            <span class="dt">int</span> i = sa[ii], j = sa[ii - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb4-117" title="117">            rk[i] = rk[j] + (r0[i] != r0[j] || r1[i] != r1[j]);</a>
+<a class="sourceLine" id="cb4-118" title="118">        }</a>
+<a class="sourceLine" id="cb4-119" title="119">        <span class="cf">return</span> rk[sa[n - <span class="dv">1</span>]] + <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-120" title="120">    }</a>
+<a class="sourceLine" id="cb4-121" title="121"></a>
+<a class="sourceLine" id="cb4-122" title="122">  <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb4-123" title="123">    <span class="dt">int</span> n, sa[N], rk[N];</a>
+<a class="sourceLine" id="cb4-124" title="124"></a>
+<a class="sourceLine" id="cb4-125" title="125">    IL <span class="dt">void</span> build(<span class="dt">int</span> m, <span class="dt">char</span>* s)</a>
+<a class="sourceLine" id="cb4-126" title="126">    {</a>
+<a class="sourceLine" id="cb4-127" title="127">        n = m;</a>
+<a class="sourceLine" id="cb4-128" title="128">        sort(Sigma, ID, prec(s), sa);</a>
+<a class="sourceLine" id="cb4-129" title="129">        <span class="dt">int</span> range = rank(prec(s), prec(s));</a>
+<a class="sourceLine" id="cb4-130" title="130">        <span class="cf">for</span> (<span class="dt">int</span> len = <span class="dv">1</span>; len &lt; n &amp;&amp; range &lt; n; len &lt;&lt;= <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb4-131" title="131">        {</a>
+<a class="sourceLine" id="cb4-132" title="132">            memcpy(trk, rk, <span class="kw">sizeof</span>(<span class="dt">int</span>) * n);</a>
+<a class="sourceLine" id="cb4-133" title="133">            T_rk r1(n, len, trk), r0(n, <span class="dv">0</span>, trk);</a>
+<a class="sourceLine" id="cb4-134" title="134">            sort(range + <span class="dv">1</span>, ID, r1, tsa);</a>
+<a class="sourceLine" id="cb4-135" title="135">            sort(range + <span class="dv">1</span>, T_order(tsa), r0, sa);</a>
+<a class="sourceLine" id="cb4-136" title="136">            range = rank(r0, r1);</a>
+<a class="sourceLine" id="cb4-137" title="137">        }</a>
+<a class="sourceLine" id="cb4-138" title="138">    }</a>
+<a class="sourceLine" id="cb4-139" title="139"></a>
+<a class="sourceLine" id="cb4-140" title="140">    IL <span class="dt">int</span> get_rk(<span class="dt">int</span> i) { <span class="cf">return</span> rk[i]; }</a>
+<a class="sourceLine" id="cb4-141" title="141">};</a>
+<a class="sourceLine" id="cb4-142" title="142"></a>
+<a class="sourceLine" id="cb4-143" title="143"><span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="dt">int</span> N&gt;</a>
+<a class="sourceLine" id="cb4-144" title="144"><span class="kw">class</span> ST</a>
+<a class="sourceLine" id="cb4-145" title="145">{</a>
+<a class="sourceLine" id="cb4-146" title="146">  <span class="kw">private</span>:</a>
+<a class="sourceLine" id="cb4-147" title="147">    <span class="dt">int</span> l, log[N + <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb4-148" title="148">    T st[L][N];</a>
+<a class="sourceLine" id="cb4-149" title="149"></a>
+<a class="sourceLine" id="cb4-150" title="150">    <span class="kw">inline</span> <span class="dt">int</span> log2n(<span class="dt">int</span> n) { <span class="cf">return</span> <span class="dv">32</span> - <span class="fu">__builtin_clz</span>(n - <span class="dv">1</span>); }</a>
+<a class="sourceLine" id="cb4-151" title="151">  <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb4-152" title="152">    ST()</a>
+<a class="sourceLine" id="cb4-153" title="153">    {</a>
+<a class="sourceLine" id="cb4-154" title="154">        log[<span class="dv">1</span>] = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-155" title="155">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">2</span>; i &lt;= N; ++i)</a>
+<a class="sourceLine" id="cb4-156" title="156">            log[i] = <span class="dv">31</span> - <span class="fu">__builtin_clz</span>(i - <span class="dv">1</span>);</a>
+<a class="sourceLine" id="cb4-157" title="157">    }</a>
+<a class="sourceLine" id="cb4-158" title="158"></a>
+<a class="sourceLine" id="cb4-159" title="159">    <span class="dt">void</span> build(<span class="dt">int</span> n, <span class="at">const</span> T *value)</a>
+<a class="sourceLine" id="cb4-160" title="160">    {</a>
+<a class="sourceLine" id="cb4-161" title="161">        l = log2n(n), memcpy(st[<span class="dv">0</span>], value, <span class="kw">sizeof</span>(T) * n);</a>
+<a class="sourceLine" id="cb4-162" title="162">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>; i &lt; l; ++i)</a>
+<a class="sourceLine" id="cb4-163" title="163">            <span class="cf">for</span> (<span class="dt">int</span> j = <span class="dv">0</span>; j + (<span class="dv">1</span> &lt;&lt; i) &lt;= n; ++j)</a>
+<a class="sourceLine" id="cb4-164" title="164">                st[i][j] = min(st[i - <span class="dv">1</span>][j], st[i - <span class="dv">1</span>][j + (<span class="dv">1</span> &lt;&lt; i - <span class="dv">1</span>)]);</a>
+<a class="sourceLine" id="cb4-165" title="165">    }</a>
+<a class="sourceLine" id="cb4-166" title="166"></a>
+<a class="sourceLine" id="cb4-167" title="167">    T rmq(<span class="dt">int</span> a, <span class="dt">int</span> b) <span class="at">const</span></a>
+<a class="sourceLine" id="cb4-168" title="168">    {</a>
+<a class="sourceLine" id="cb4-169" title="169">        <span class="at">const</span> <span class="dt">int</span> l = log[b - a];</a>
+<a class="sourceLine" id="cb4-170" title="170">        <span class="cf">return</span> min(st[l][a], st[l][b - (<span class="dv">1</span> &lt;&lt; l)]);</a>
+<a class="sourceLine" id="cb4-171" title="171">    }</a>
+<a class="sourceLine" id="cb4-172" title="172">};</a>
+<a class="sourceLine" id="cb4-173" title="173"></a>
+<a class="sourceLine" id="cb4-174" title="174"><span class="kw">template</span> &lt;<span class="kw">typename</span> SA, <span class="kw">template</span> &lt;<span class="kw">typename</span>, <span class="dt">int</span>&gt; <span class="kw">class</span> RMQ_T&gt;</a>
+<a class="sourceLine" id="cb4-175" title="175"><span class="kw">class</span> LCPT : SA</a>
+<a class="sourceLine" id="cb4-176" title="176">{</a>
+<a class="sourceLine" id="cb4-177" title="177">  <span class="kw">public</span>:</a>
+<a class="sourceLine" id="cb4-178" title="178">    <span class="dt">int</span> n, height[N];</a>
+<a class="sourceLine" id="cb4-179" title="179">    RMQ_T&lt;<span class="dt">int</span>, N - <span class="dv">1</span>&gt; rmq;</a>
+<a class="sourceLine" id="cb4-180" title="180"></a>
+<a class="sourceLine" id="cb4-181" title="181">    <span class="dt">void</span> build(<span class="dt">int</span> _n, <span class="dt">char</span> *s)</a>
+<a class="sourceLine" id="cb4-182" title="182">    {</a>
+<a class="sourceLine" id="cb4-183" title="183">        n = _n, SA::build(n, s);</a>
+<a class="sourceLine" id="cb4-184" title="184">        <span class="dt">int</span> lcp = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-185" title="185">        <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; n; ++i)</a>
+<a class="sourceLine" id="cb4-186" title="186">            <span class="cf">if</span> (SA::rk[i])</a>
+<a class="sourceLine" id="cb4-187" title="187">            {</a>
+<a class="sourceLine" id="cb4-188" title="188">                <span class="dt">int</span> j = SA::sa[SA::rk[i] - <span class="dv">1</span>];</a>
+<a class="sourceLine" id="cb4-189" title="189">                <span class="cf">while</span> (i + lcp &lt; n &amp;&amp; j + lcp &lt; n &amp;&amp; s[i + lcp] == s[j + lcp]) ++lcp;</a>
+<a class="sourceLine" id="cb4-190" title="190">                height[SA::rk[i] - <span class="dv">1</span>] = lcp;</a>
+<a class="sourceLine" id="cb4-191" title="191">                lcp = max(lcp - <span class="dv">1</span>, <span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb4-192" title="192">            }</a>
+<a class="sourceLine" id="cb4-193" title="193">        rmq.build(n - <span class="dv">1</span>, height);</a>
+<a class="sourceLine" id="cb4-194" title="194">    }</a>
+<a class="sourceLine" id="cb4-195" title="195"></a>
+<a class="sourceLine" id="cb4-196" title="196">    <span class="dt">int</span> lcp(<span class="dt">int</span> i, <span class="dt">int</span> j)</a>
+<a class="sourceLine" id="cb4-197" title="197">    {</a>
+<a class="sourceLine" id="cb4-198" title="198">        <span class="cf">if</span> (i == j) <span class="cf">return</span> n - i;</a>
+<a class="sourceLine" id="cb4-199" title="199">        <span class="cf">if</span> (j == n) <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-200" title="200">        i = SA::rk[i], j = SA::rk[j];</a>
+<a class="sourceLine" id="cb4-201" title="201">        <span class="cf">return</span> i &lt; j ? rmq.rmq(i, j) : rmq.rmq(j, i);</a>
+<a class="sourceLine" id="cb4-202" title="202">    }</a>
+<a class="sourceLine" id="cb4-203" title="203"></a>
+<a class="sourceLine" id="cb4-204" title="204">    IL <span class="dt">int</span> get_rk(<span class="dt">int</span> i) { <span class="cf">return</span> SA::rk[i]; }</a>
+<a class="sourceLine" id="cb4-205" title="205">};</a>
+<a class="sourceLine" id="cb4-206" title="206"></a>
+<a class="sourceLine" id="cb4-207" title="207"><span class="dt">int</span> n, nsv[N], nbv[N], aruns[N], dp[N];</a>
+<a class="sourceLine" id="cb4-208" title="208"><span class="dt">char</span> s[N];</a>
+<a class="sourceLine" id="cb4-209" title="209">LCPT&lt;SA&lt;prec0&gt;, ST&gt; sa;</a>
+<a class="sourceLine" id="cb4-210" title="210">SA&lt;prec1&gt; rsa;</a>
+<a class="sourceLine" id="cb4-211" title="211"><span class="bu">std::</span>vector&lt;my_tuple&gt; runs;</a>
+<a class="sourceLine" id="cb4-212" title="212"><span class="bu">std::</span>vector&lt;my_pair&gt; rsum[N];</a>
+<a class="sourceLine" id="cb4-213" title="213"></a>
+<a class="sourceLine" id="cb4-214" title="214"><span class="dt">int</span> get_lcs(<span class="dt">int</span> i, <span class="dt">int</span> j)</a>
+<a class="sourceLine" id="cb4-215" title="215">{</a>
+<a class="sourceLine" id="cb4-216" title="216">    <span class="dt">int</span> low = <span class="dv">0</span>, high = min(i, j);</a>
+<a class="sourceLine" id="cb4-217" title="217">    <span class="cf">while</span> (low &lt; high)</a>
+<a class="sourceLine" id="cb4-218" title="218">    {</a>
+<a class="sourceLine" id="cb4-219" title="219">        <span class="dt">int</span> middle = low + high + <span class="dv">1</span> &gt;&gt; <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-220" title="220">        <span class="cf">if</span> (sa.lcp(i - middle, j - middle) &gt;= middle) low = middle;</a>
+<a class="sourceLine" id="cb4-221" title="221">        <span class="cf">else</span> high = middle - <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-222" title="222">    }</a>
+<a class="sourceLine" id="cb4-223" title="223">    <span class="cf">return</span> low;</a>
+<a class="sourceLine" id="cb4-224" title="224">}</a>
+<a class="sourceLine" id="cb4-225" title="225"></a>
+<a class="sourceLine" id="cb4-226" title="226"><span class="dt">void</span> add_run(<span class="dt">int</span> i, <span class="dt">int</span> j)</a>
+<a class="sourceLine" id="cb4-227" title="227">{</a>
+<a class="sourceLine" id="cb4-228" title="228">    <span class="dt">int</span> length = j - i;</a>
+<a class="sourceLine" id="cb4-229" title="229">    <span class="dt">int</span> lcs = get_lcs(i, j);</a>
+<a class="sourceLine" id="cb4-230" title="230">    <span class="cf">if</span> (lcs &lt; length)</a>
+<a class="sourceLine" id="cb4-231" title="231">    {</a>
+<a class="sourceLine" id="cb4-232" title="232">        <span class="dt">int</span> lcp = sa.lcp(i, j);</a>
+<a class="sourceLine" id="cb4-233" title="233">        <span class="cf">if</span> (lcs + lcp &gt;= length)</a>
+<a class="sourceLine" id="cb4-234" title="234">            runs.push_back((my_tuple){i - lcs + length + length, j + lcp, length});</a>
+<a class="sourceLine" id="cb4-235" title="235">    }</a>
+<a class="sourceLine" id="cb4-236" title="236">}</a>
+<a class="sourceLine" id="cb4-237" title="237"></a>
+<a class="sourceLine" id="cb4-238" title="238"><span class="dt">int</span> main()</a>
+<a class="sourceLine" id="cb4-239" title="239">{</a>
+<a class="sourceLine" id="cb4-240" title="240">    scanf(<span class="st">&quot;</span><span class="sc">%s</span><span class="st">&quot;</span>, s), n = strlen(s);</a>
+<a class="sourceLine" id="cb4-241" title="241">    sa.build(n, s);</a>
+<a class="sourceLine" id="cb4-242" title="242">    <span class="cf">for</span> (<span class="dt">int</span> i = n; i--;)</a>
+<a class="sourceLine" id="cb4-243" title="243">    {</a>
+<a class="sourceLine" id="cb4-244" title="244">        <span class="cf">for</span> (<span class="dt">int</span> &amp;j = nsv[i] = i + <span class="dv">1</span>; j &lt; n &amp;&amp; sa.get_rk(i) &lt; sa.get_rk(j);) j = nsv[j];</a>
+<a class="sourceLine" id="cb4-245" title="245">        <span class="cf">for</span> (<span class="dt">int</span> &amp;j = nbv[i] = i + <span class="dv">1</span>; j &lt; n &amp;&amp; sa.get_rk(i) &gt; sa.get_rk(j);) j = nbv[j];</a>
+<a class="sourceLine" id="cb4-246" title="246">        add_run(i, nsv[i]);</a>
+<a class="sourceLine" id="cb4-247" title="247">        <span class="cf">if</span> (nsv[i] != nbv[i]) add_run(i, nbv[i]);</a>
+<a class="sourceLine" id="cb4-248" title="248">    }</a>
+<a class="sourceLine" id="cb4-249" title="249">    <span class="bu">std::</span>sort(runs.begin(), runs.end());</a>
+<a class="sourceLine" id="cb4-250" title="250">    runs.erase(<span class="bu">std::</span>unique(runs.begin(), runs.end()), runs.end());</a>
+<a class="sourceLine" id="cb4-251" title="251">    dp[<span class="dv">0</span>] = <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-252" title="252">    <span class="dt">int</span> arun_st = <span class="dv">0</span>, arun_sz = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-253" title="253">    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">1</span>, j = <span class="dv">0</span>, sigma = <span class="dv">1</span>; i &lt;= n; ++i)</a>
+<a class="sourceLine" id="cb4-254" title="254">    {</a>
+<a class="sourceLine" id="cb4-255" title="255">        <span class="cf">while</span> (j &lt; runs.size() &amp;&amp; runs[j][<span class="dv">0</span>] == i) aruns[(arun_st + (arun_sz++)) % n] = j++;</a>
+<a class="sourceLine" id="cb4-256" title="256">        <span class="dt">int</span> lst_st = arun_st, lst_sz = arun_sz;</a>
+<a class="sourceLine" id="cb4-257" title="257">        (arun_st += arun_sz) %= n;</a>
+<a class="sourceLine" id="cb4-258" title="258">        arun_sz = <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-259" title="259">        dp[i] = sigma;</a>
+<a class="sourceLine" id="cb4-260" title="260">        <span class="cf">for</span> (<span class="dt">int</span> k = <span class="dv">0</span>; k &lt; lst_sz; ++k)</a>
+<a class="sourceLine" id="cb4-261" title="261">        {</a>
+<a class="sourceLine" id="cb4-262" title="262">            <span class="dt">int</span> j = aruns[(lst_st + k) % n];</a>
+<a class="sourceLine" id="cb4-263" title="263">            <span class="dt">int</span> len = runs[j][<span class="dv">2</span>], st = runs[j][<span class="dv">0</span>];</a>
+<a class="sourceLine" id="cb4-264" title="264">            <span class="dt">int</span> offset = (i - st) % len;</a>
+<a class="sourceLine" id="cb4-265" title="265">            <span class="cf">if</span> (offset == rsum[j].size()) rsum[j].push_back((my_pair){<span class="dv">0</span>,<span class="dv">0</span>});</a>
+<a class="sourceLine" id="cb4-266" title="266">            <span class="dt">int</span> parity = (i - st) / len &amp; <span class="dv">1</span>;</a>
+<a class="sourceLine" id="cb4-267" title="267">            rsum[j][offset][parity] = (rsum[j][offset][parity] + dp[i - <span class="dv">2</span> * len]) % mod;</a>
+<a class="sourceLine" id="cb4-268" title="268">            dp[i] = ((<span class="dt">long</span> <span class="dt">long</span>)dp[i] + mod * <span class="dv">2</span> - rsum[j][offset][parity] * <span class="dv">2</span>) % mod;</a>
+<a class="sourceLine" id="cb4-269" title="269">            <span class="cf">if</span> (runs[j][<span class="dv">1</span>] != i) aruns[(arun_st + (arun_sz++)) % n] = j;</a>
+<a class="sourceLine" id="cb4-270" title="270">        }</a>
+<a class="sourceLine" id="cb4-271" title="271">        sigma = (sigma + dp[i]) % mod;</a>
+<a class="sourceLine" id="cb4-272" title="272">    }</a>
+<a class="sourceLine" id="cb4-273" title="273">    printf(<span class="st">&quot;</span><span class="sc">%d\n</span><span class="st">&quot;</span>, dp[n]);</a>
+<a class="sourceLine" id="cb4-274" title="274">    <span class="cf">return</span> <span class="dv">0</span>;</a>
+<a class="sourceLine" id="cb4-275" title="275">}</a></code></pre></div>
+</details>
 <h3 id="ex-k-zjoi2020-字符串">Ex K [ZJOI2020] 字符串</h3>
 <p>留作习题。</p>
 <h2 id="reference">Reference</h2>
