@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="zghtyarecrenj">
+  <meta name="description" content="… CF1479E 题解 前置知识：鞅与停时定理 鞅 我们有一个随机过程 \(X_0,X_1, ...\)。如果 \(\forall n \in \mathbb N, \ E(Y_n) &lt; \infty\) 且 \(\forall n \in \mathbb N^&#43;, \ E(Y_{n &#43; 1}|X_n,X_{n-1},...,X_0) = E(Y_n)\)，则我们称 \(Y_0, Y_1, ...\) 为该随机过程的鞅。 离散时间鞅 如果随机过程 \(X_0,X_1, ...\) 满足 \(\forall n \in \mathbb N, \ E(X_n) &lt; \infty\) 且 \(\forall n \in \mathbb N^&#43;, \ E(X_{n &#43; 1}|X_n,X_{n-1},...,X_0) = E(X_n)\)，则我们称该随机过程为离散时间鞅。 即：已知之前所有的过程，之后的观察值的期望等于之前的观察值的期望 停时定理 对于一个随机过程，如果我们可以根据之前的过程判断该">
+  
+  <meta property="og:title" content="Cf1479E School Clubs" />
+<meta property="og:description" content="… CF1479E 题解 前置知识：鞅与停时定理 鞅 我们有一个随机过程 \(X_0,X_1, ...\)。如果 \(\forall n \in \mathbb N, \ E(Y_n) &lt; \infty\) 且 \(\forall n \in \mathbb N^&#43;, \ E(Y_{n &#43; 1}|X_n,X_{n-1},...,X_0) = E(Y_n)\)，则我们称 \(Y_0, Y_1, ...\) 为该随机过程的鞅。 离散时间鞅 如果随机过程 \(X_0,X_1, ...\) 满足 \(\forall n \in \mathbb N, \ E(X_n) &lt; \infty\) 且 \(\forall n \in \mathbb N^&#43;, \ E(X_{n &#43; 1}|X_n,X_{n-1},...,X_0) = E(X_n)\)，则我们称该随机过程为离散时间鞅。 即：已知之前所有的过程，之后的观察值的期望等于之前的观察值的期望 停时定理 对于一个随机过程，如果我们可以根据之前的过程判断该" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zghtyarecrenj.github.io/post/cf1479e/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-06-05T11:05:30&#43;08:00" />
+<meta property="article:modified_time" content="2021-06-05T11:05:30&#43;08:00" />
+
+
+
+  <title>
+  
+       Cf1479E School Clubs | zghtyarecrenj&#39;s blog 
+  
+  </title>
+
+  <link rel="canonical" href="https://zghtyarecrenj.github.io/post/cf1479e/">
+
+  
+  
+
+  
+  <link href="https://zghtyarecrenj.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://zghtyarecrenj.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://zghtyarecrenj.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://zghtyarecrenj.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://zghtyarecrenj.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://zghtyarecrenj.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://zghtyarecrenj.github.io/img/fav.jpg"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://zghtyarecrenj.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://zghtyarecrenj.github.io">
+          
+        <img class="avatar" src="https://zghtyarecrenj.github.io/img/fav.jpg" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> zghtyarecrenj</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://zghtyarecrenj.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/moment/" >Moment  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://zghtyarecrenj.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides/1346329fa6990e8c88838a1799587177.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides//4cfcb480528e250e0064847085e7052a.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://zghtyarecrenj.github.io/img/header-slides//68d00805177931258a1129efd6753df5.jpeg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://zghtyarecrenj.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://zghtyarecrenj.github.io/img/fav.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://zghtyarecrenj.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>zghtyarecrenj&#39;s blog</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/zghtyarecrenj" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:zghtyarecrenj@qq.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="container pr-5">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">Cf1479E School Clubs</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Jun 5, 2021</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>5 minutes read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            <html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css" integrity="sha384-Um5gpz1odJg5Z4HAmzPtgZKdTBHZdw8S29IecapCSB31ligYPhHQZMIlWLYQGVoc" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js" integrity="sha384-YNHdsYkH6gMx9y3mRkmcJ2mFUjTd0qNQQvY9VYZgQd7DcN7env35GzlmFaZ23JGp" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+</head>
+…
+</html>
+<h1 id="cf1479e-题解">CF1479E 题解</h1>
+<h2 id="前置知识鞅与停时定理">前置知识：鞅与停时定理</h2>
+<h4 id="鞅">鞅</h4>
+<p>我们有一个随机过程 <span class="math inline">\(X_0,X_1, ...\)</span>。如果 <span class="math inline">\(\forall n \in \mathbb N, \ E(Y_n) &lt; \infty\)</span> 且 <span class="math inline">\(\forall n \in \mathbb N^+, \ E(Y_{n + 1}|X_n,X_{n-1},...,X_0) = E(Y_n)\)</span>，则我们称 <span class="math inline">\(Y_0, Y_1, ...\)</span> 为该随机过程的鞅。</p>
+<h4 id="离散时间鞅">离散时间鞅</h4>
+<p>如果随机过程 <span class="math inline">\(X_0,X_1, ...\)</span> 满足 <span class="math inline">\(\forall n \in \mathbb N, \ E(X_n) &lt; \infty\)</span> 且 <span class="math inline">\(\forall n \in \mathbb N^+, \ E(X_{n + 1}|X_n,X_{n-1},...,X_0) = E(X_n)\)</span>，则我们称该随机过程为离散时间鞅。</p>
+<p>即：已知之前所有的过程，之后的观察值的期望等于之前的观察值的期望</p>
+<h4 id="停时定理">停时定理</h4>
+<p>对于一个随机过程，如果我们可以根据之前的过程判断该过程是否已经停止（即不用知道未来的过程），则他的停时为一个随机变量 <span class="math inline">\(\tau\)</span>。</p>
+<p>如果满足下列几个条件之一，则我们有 <span class="math inline">\(E(X_\tau) = X_0\)</span>。</p>
+<ol type="1">
+<li><span class="math inline">\(\tau\)</span> 几乎一定有界</li>
+<li><span class="math inline">\(|X_{t + 1} - X_t|\)</span> 一致有界，且 <span class="math inline">\(E(\tau)\)</span> 有限</li>
+<li><span class="math inline">\(X_t\)</span> 一致有界，且 <span class="math inline">\(\tau\)</span> 几乎一定有限</li>
+</ol>
+<p>注意，这里由于 <span class="math inline">\(\tau\)</span> 不是一个定值，所以和前面说的离散时间鞅的定义不同。</p>
+<p>读者自证不难</p>
+<h4 id="oi里面怎么用">OI里面怎么用</h4>
+<p>有随机过程 <span class="math inline">\(A_0, A_1, ...\)</span>，考虑构造势能函数 <span class="math inline">\(\phi\)</span>。要求 <span class="math inline">\(E(\phi(A_{t+1}) - \phi(A_t) | A_t, A_{t-1}, ..., A_0) = -1\)</span>。</p>
+<p>则我们构造随机过程 <span class="math inline">\(X_t = \phi(A_t) + t\)</span>，易证 <span class="math inline">\(X_0, X_1, ...\)</span> 为离散时间鞅。</p>
+<p>停时定理，<span class="math inline">\(E(X_\tau) = X_0\)</span> 即 <span class="math inline">\(E(\phi(A_\tau) + \tau) = \phi(A_0)\)</span>，则 <span class="math inline">\(E(\tau) = \phi(A_0) - \phi(A_\tau)\)</span>。</p>
+<h2 id="cf1479e-school-clubs">CF1479E School Clubs</h2>
+<h3 id="statement">Statement</h3>
+<p>有 <span class="math inline">\(n\)</span> 个学生和 <span class="math inline">\(m\)</span> 个组，每个人在一个组里面，第 <span class="math inline">\(i\)</span> 个组的人数为 <span class="math inline">\(a_i\)</span>。</p>
+<p>现在，每天有一个学生（<span class="math inline">\(n\)</span> 个学生中随机的一个）会生气，他会：</p>
+<ol type="1">
+<li>有一半的概率他会脱离这个组，并且成立一个新的组。</li>
+<li>有一半的概率他会脱离这个组，并且进入一个已经成立的组。他进入第 <span class="math inline">\(i\)</span> 个组的概率为 <span class="math inline">\(\frac {a_i} n\)</span>，他可能会回到原来的组。</li>
+</ol>
+<p>求第一次出现所有学生在同一个组的期望天数。</p>
+<p><span class="math inline">\(m \le 1000\)</span>，<span class="math inline">\(n \le 4 \times 10^8\)</span></p>
+<h3 id="sol">Sol</h3>
+<p>在这道题中，我们可以用一个可重集来描述状态，然后我们考虑如何设计 <span class="math inline">\(\phi\)</span>。</p>
+<p>由于不同组之间是独立的，所以我们可以分开计算其势能，即 <span class="math inline">\(\phi(A_t) = \sum _{a \in A_t} f(a)\)</span>。</p>
+<p>分类讨论</p>
+<ol type="1">
+<li><p>操作 1，有一个人离开了一个组，进入了一个新的组。则 <span class="math display">\[
+\phi(A_{t + 1}) = \phi(A_t) - f(a_x) + f(a_x - 1) + f(1)
+\]</span></p></li>
+<li><p>操作 2，回到原来组。则 <span class="math display">\[
+\phi(A_{t + 1}) = \phi(A_t)
+\]</span></p></li>
+<li><p>操作 2，没有回到原来组，则 <span class="math display">\[
+\phi(A_{t + 1}) = \phi(A_t) - f(a_x) + f(a_x - 1) - f(a_y) + f(a_y + 1)
+\]</span></p></li>
+</ol>
+<p>综上 <span class="math display">\[
+\begin{aligned}
+E(\phi(A_{t + 1})|A_t) &amp;= \sum _{i = 1} ^m \dfrac {a_i} n \cdot \dfrac 1 2 \left( \phi(A_t) - f(a_i) + f(a_i - 1) + f(1) + \dfrac {a_i} n \phi(A_t) + \sum _{j = 1}^m [i\neq j] \dfrac {a_j} n \left(\phi(A_t) - f(a_i) + f(a_i-1) - f(a_j) + f(a_j+1)\right)\right) \\
+&amp;= \sum _{i = 1} ^m \dfrac {a_i} {2n} \left( 2\phi(A_t) + f(1) - \dfrac {2n - a_i} n f(a_i) + \dfrac {2n - a_i} n f(a_i - 1) + \sum _{j \neq i} (f(a_j+1) - f(a_j))\right) \\
+&amp;= \phi(A_t) + \dfrac 1 2 f(1) - \sum_i\dfrac {3na_i-2a_i^2}{2n^2} f(a_i) + \sum_i\dfrac {2na_i-a_i^2}{2n^2} f(a_i- 1) + \sum_i \dfrac {na_i - a_i^2} {2n^2} f(a_i + 1)
+\end{aligned}
+\]</span> 根据势能函数需要满足的要求 <span class="math display">\[
+E(\phi(A_{t+1})-\phi(A_t) | A_t, A_{t-1},...,A_0) = -1
+\]</span> 所以 <span class="math display">\[
+f(1) + 2 + \sum_i \dfrac{a_i}{n^2} (-(3n-2a_i)f(a_i)+(2n-a_i)f(a_i-1)+(n-a_i)f(a_i + 1)) = 0
+\]</span> 由于 <span class="math inline">\(a_i=0\)</span> 是不会产生贡献的（因为你永远不可能动他）所以相当于扔掉了，因此势能为 0，即 <span class="math inline">\(f(0) = 0\)</span>。</p>
+<p>因为我们关心的是势能的差，所以为了方便我们取 <span class="math inline">\(f(1)=-2\)</span>，把常数项消掉。则 <span class="math display">\[
+\sum_i \dfrac{a_i}{n^2} (-(3n-2a_i)f(a_i)+(2n-a_i)f(a_i-1)+(n-a_i)f(a_i + 1)) = 0
+\]</span></p>
+<p><span class="math display">\[
+-(3n-2a)f(a)+(2n-a)f(a-1)+(n-a)f(a + 1) = 0
+\]</span></p>
+<h4 id="算法一">算法一</h4>
+<p><span class="math display">\[
+f(a+1) = \dfrac {(3n-2a)f(a)-(2n-a)f(a-1)} {n-a}
+\]</span></p>
+<p>由于 <span class="math inline">\(E(A_\tau) = f(n)\)</span>，所以 <span class="math inline">\(E(\tau) = E(A_0) - E(A_\tau) = \sum f(a_i) - f(n)\)</span>。</p>
+<p>线性暴力计算。</p>
+<p>这个怎么能过？？？</p>
+<p>CF 机子太快了！！1</p>
+<h4 id="算法二">算法二</h4>
+<p>刚才那个柿子也可以变成这样 <span class="math display">\[
+(n-a)(f(a+1)-f(a)) = (2n-a)(f(a)-f(a-1))
+\]</span> 则我们记 <span class="math inline">\(f(a)\)</span> 的差分 <span class="math inline">\(g(a)=f(a+1)-f(a)\)</span>，有 <span class="math display">\[
+g(a) = \dfrac {2n-a}{n-a} g(a-1) = \prod _{i=1} ^a \dfrac {2n-i}{n-i} g(0)
+\]</span> 而因为 <span class="math inline">\(f(0)=0\)</span>，<span class="math inline">\(f(1)=-2\)</span>，所以 <span class="math inline">\(g(1)=-2\)</span>。 <span class="math display">\[
+f(a) = \sum_{i=0}^{a-1} g(i)
+\]</span> 然后就是考虑怎么求 <span class="math display">\[
+S(a) = \sum _{i=1}^a \prod_{j=1}^i \dfrac {2n-j}{n-j}
+\]</span> 有一个很巧妙的 trick。<span class="math inline">\(N\)</span> 是一个比 <span class="math inline">\(a\)</span> 大的数。令 <span class="math display">\[
+s(a) = S(a) \cdot \prod_{i=1}^N (n-i)
+\]</span> 考虑分块求解，块长 <span class="math inline">\(B = \sqrt N\)</span>，则令 <span class="math display">\[
+R(z) = \sum_{i=z+1}^{z+B} \left(\prod_{j=z+1}^i (2n-j)\prod_{j=i+1}^{z+B} (n-j)\right)
+\]</span> 则 <span class="math display">\[
+s(a) = \sum _{i=0}^{a/B} \left(\prod _{j=1}^{Bi} (2n-j)\cdot \prod_{j=Bi+B+1}^N (n-j)\cdot R(Bi)\right) + \sum_{i=(\lfloor a/B\rfloor+1)*B+1}^a \left(\prod _{j=1}^i (2n-j) \cdot \prod_{j=i+1}^N (n-j)\right)
+\]</span> 接下来考虑如何计算。</p>
+<p>对于 <span class="math inline">\(R(z)\)</span>，首先 <span class="math inline">\(R(0)\)</span> 是可以 <span class="math inline">\(O(\sqrt n)\)</span> 计算的。</p>
+<p>考虑递推 <span class="math display">\[
+R(z) = R(z-1) \cdot \dfrac {n-(z+B)}{2n-z} + \prod_{i=z+1}^{z+B} (2n - i)- \prod_{i=z+1}^{z+B}(n - i)
+\]</span> 求出 <span class="math inline">\(R(0) .. R(B)\)</span> 之后我们进行插值，就可以得到多项式 <span class="math inline">\(R(z)\)</span>。然后我们可以多点求值求出所有 <span class="math inline">\(R(Bi)\)</span>。</p>
+<p>对于剩余的部分，我们需要求的其实是一些 <span class="math inline">\(2n-x\)</span> 或者 <span class="math inline">\(n-x\)</span> 的前缀或者后缀积。</p>
+<p>我们考虑如何求一个一次函数 <span class="math inline">\(F(x)\)</span> 的前缀积。（后缀积不说了，因为可以很方便地转化成前缀积）</p>
+<p>我们延续前面的分块的思想。记 <span class="math inline">\(D(z) = \prod _{i=z+1}^{z+B} F(i)\)</span>。</p>
+<p>注意到 <span class="math inline">\(D(z)\)</span> 是一个关于 <span class="math inline">\(x\)</span> 的 <span class="math inline">\(B\)</span> 次多项式，所以我们延续前面求 <span class="math inline">\(R(z)\)</span> 的想法，先求出 <span class="math inline">\(D(0) , D(1), \cdots, D(B)\)</span> 然后插值、多点求值求出所有的 <span class="math inline">\(D(Bi)\)</span>。</p>
+<p>这么做的时间复杂度是 <span class="math inline">\(\mathcal O(\sqrt n(m + \log^2 N))\)</span>。</p>
+<h4 id="算法三">算法三</h4>
+<p>快速插值和多点求值常数太大辣！！！</p>
+<p>其实我们可以用“快速阶乘”的 trick 去掉一个 log。</p>
+<p>首先我们有多项式 <span class="math inline">\(f(x)\)</span> 和若干个点值 <span class="math inline">\((x_i, f(x_i))\)</span>。考虑拉格朗日插值的公式 <span class="math display">\[
+f(x) = \sum_{i=1} ^m f(x_i) \prod _{j \ne i} \dfrac {x - x_j} {x_i - x_j}
+\]</span> 在这个问题中 <span class="math inline">\(x_i\)</span> 分别为 <span class="math inline">\(0\)</span> 到 <span class="math inline">\(d\)</span>。所以 <span class="math display">\[
+f(x) = \sum_{i=0} ^d f(i) \prod _{j \ne i} \dfrac {x - j} {i - j}
+\]</span> 考虑怎么求 <span class="math inline">\(f(d + k)\)</span>，<span class="math inline">\(1 \le k \le t\)</span> <span class="math display">\[
+\begin{aligned}
+f(d+k) &amp;= \sum_{i=0} ^t f(i) \prod _{j \ne i} \dfrac {d + k - j} {i-j}\\
+&amp;= \prod _{j=0} ^t (d+k-j) \cdot \left(\sum_{i=0}^t  \dfrac {(-1)^{t-i}f(i)}{i!(t-i)!} \cdot \dfrac 1 {d+k-i}\right)
+\end{aligned}
+\]</span> 括号里面可以卷积计算： <span class="math display">\[
+F(x) = \sum _{i=0} ^t \dfrac {(-1)^{t-i}f(i)}{i!(t-i)!} x^i
+\]</span></p>
+<p><span class="math display">\[
+G(x) = \sum_{i=0}^{2t} \dfrac 1 {d-t+i} x^i
+\]</span></p>
+<p>故 <span class="math display">\[
+f(d+k) = \prod _{j=0} ^t (d+k-j) \cdot [x^{k+t}] F(x)G(x)
+\]</span> 如果给出 <span class="math inline">\(f(0), f(B), f(2B), .. f(Bk)\)</span>，要求 <span class="math inline">\(f(d), f(d+B), .., f(d+Bk)\)</span>，则设 <span class="math inline">\(g(x) = f(Bx)\)</span> 就可以解决。</p>
+<p>接下来考虑如何求 <span class="math inline">\(R(z)\)</span>。</p>
+<p><span class="math display">\[
+R(z,B) = \sum_{i=z+1}^{z+B} \left(\prod_{j=z+1}^i (2n-j)\prod_{j=i+1}^{z+B} (n-j)\right)
+\]</span></p>
+<p><span class="math display">\[
+P(z, B) = \prod _{j = z + 1} ^{z + B} (2n - j)
+\]</span></p>
+<p><span class="math display">\[
+Q(z, B) = \prod _{j = z + 1} ^{z + B} (n - j)
+\]</span></p>
+<p>那么我们要算的就是 <span class="math inline">\(P(0, B), P(s, B), ... , P(sB, B)\)</span>，<span class="math inline">\(R, Q\)</span> 同理。</p>
+<p>如何递归计算？</p>
+<p><span class="math display">\[
+R(z, 2B) = R(z,B)\cdot Q(z+B,B)+R(z+B,B) \cdot P(z,B)
+\]</span></p>
+<p><span class="math display">\[
+P(z, 2B) = P(z,B) \cdot P(z+B,B)
+\]</span></p>
+<p><span class="math display">\[
+Q(z, 2B) = Q(z, B) \cdot Q(z + B, B)
+\]</span></p>
+<p>我们发现，我们需要计算的其实是：</p>
+<p><span class="math inline">\(P(0 + ks, B)\)</span>，<span class="math inline">\(P(B + ks, B)\)</span>，<span class="math inline">\(P(sB + ks, B)\)</span>，<span class="math inline">\(P(B + sB + ks, B)\)</span>，其中 <span class="math inline">\(0 \leq k \leq B\)</span>；</p>
+<p>那么我们使用前面给出的方法容易由第一组 <span class="math inline">\(P\)</span> 算出其他三组。</p>
+<p>然后就可以使用倍增求解。时间复杂度 <span class="math inline">\(T(k) = T(k / 2) + O(k \log k) = O(k \log k)\)</span>，其中 <span class="math inline">\(k\)</span> 为多项式的次数。</p>
+<p>这种方法的时间复杂度是 <span class="math inline">\(\mathcal O(\sqrt n(m + \log N))\)</span>，比算法二少了一个 log，常数也由显著提升（因为不用多点求值）</p>
+<h3 id="总结">总结</h3>
+<p>这道题是一道好题。</p>
+<p>对于求停时期望的问题，构造势能函数、使用停时定理是一种非常好的解决问题的方法。</p>
+<p>算法一考察了选手胆大心细的能力以及对CF评测机的了解程度（bushi）。</p>
+<p>算法二考察了对于一类多项式的类似阶乘的形式的问题，使用分块求解的方法。</p>
+<p>算法三考察了对于拉格朗日插值公式的变形，在此类问题中把多点求值问题转化成标准的卷积性质的方法。</p>
+<h3 id="代码">代码</h3>
+<p>翻cf递交记录吧。</p>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+                <a href=https://zghtyarecrenj.github.io/post/lyndon/ class="post-meta">Previous
+                  <div class="pt-2 pb-5 d-flex">
+                    <i class="fas fa-angle-left text-grey font-weight-bold mr-2 active-color"></i>
+                    <span>Lyndon</span>
+                  </div>
+                </a>
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+                <a href=https://zghtyarecrenj.github.io/post/joisc2020d4t1/ class="post-meta">Next
+                  <div class="pt-2 pb-5 flex-reverse">
+                    <i class="fas fa-angle-right text-grey font-weight-bold ml-2 active-color"></i>
+                    <span>Joisc2020d4t1</span>
+                  </div>
+                </a>
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/zghtyarecrenj " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:zghtyarecrenj@qq.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2021 &copy; | Theme <a href='https://github.com/orianna-zzo/AllinOne' target="_blank">AllinOne</a> by <a href='https://github.com/orianna-zzo' target="_blank">Orianna</a>  </span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://zghtyarecrenj.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://zghtyarecrenj.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>
